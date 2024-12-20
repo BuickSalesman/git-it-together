@@ -1,8 +1,7 @@
 export function Content() {
   return (
     <div>
-      <h1>Welcome to React!</h1>
-      <form action="">hello</form>
+      <h1>git-it-together</h1>
     </div>
   );
 }
