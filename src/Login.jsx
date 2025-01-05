@@ -23,6 +23,12 @@ export function Login() {
         })}
       </ul>
       <form onSubmit={handleSubmit}>
+        <div>
+          Username: <input name="username" type="text" />
+        </div>
+        <div>
+          Password: <input name="password" type="password" />
+        </div>
         <button type="submit">Login</button>
       </form>
     </div>
