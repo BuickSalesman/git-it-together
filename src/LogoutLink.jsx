@@ -4,7 +4,7 @@ export function LogoutLink() {
   const handleClick = (event) => {
     event.preventDefault();
     delete axios.defaults.headers.common["Authorization"];
-    localStorage.removeItem("jwt");
+    localStorage.removeItem("accessToken");
     window.location.href = "/";
   };
 
