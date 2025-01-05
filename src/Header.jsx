@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import { Signup } from "./Signup";
+import { Login } from "./Login";
 
 export function Header() {
   return (
@@ -7,13 +8,7 @@ export function Header() {
       <nav>
         <Link to="/">Home </Link>
         <Signup />
-        {localStorage.jwt === undefined ? (
-          <>
-            <Link to="/login">Login</Link>
-          </>
-        ) : (
-          <></>
-        )}
+        <Login />
       </nav>
     </header>
   );
