@@ -3,14 +3,19 @@ html {
 }
 
 header {
-  background-color: gray;
+  background-color: #fafbfc;
   padding: 1em;
   color: white;
 }
 
-footer {
-  background-color: gray;
-  padding: 2em;
-  margin-top: 1em;
-  text-align: center;
+h1 {
+  color: #1f2329;
+}
+
+form {
+  color: #1f2329;
+}
+
+ul {
+  color: #1f2329;
 }
