@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
-import { Signup } from "./Signup";
-import { Login } from "./Login";
+import { LoginDropdown } from "./LoginDropdown";
+import { SingupDropdown } from "./SignupDropdown";
 import { LogoutLink } from "./LogoutLink";
 
 export function Header() {
@@ -8,17 +8,22 @@ export function Header() {
 
   return (
     <header>
-      <nav>
-        <Link to="/">Home </Link>
-
-        {accessToken ? (
-          <LogoutLink />
-        ) : (
-          <>
-            <Signup />
-            <Login />
-          </>
-        )}
+      <nav className="navbar">
+        <div className="nav-right">
+          {" "}
+          {accessToken ? (
+            <>
+              <Link to="/">Home</Link>
+              <> </>
+              <LogoutLink />
+            </>
+          ) : (
+            <>
+              <SingupDropdown />
+              <LoginDropdown />
+            </>
+          )}
+        </div>
       </nav>
     </header>
   );

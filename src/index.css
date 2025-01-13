@@ -1,11 +1,11 @@
 html {
   scroll-behavior: smooth;
+  font-family: "Mona Sans", sans-serif;
 }
 
 header {
   background-color: #fafbfc;
   padding: 1em;
-  color: white;
 }
 
 h1 {
@@ -17,5 +17,22 @@ form {
 }
 
 ul {
+  color: #1f2329;
+}
+
+.navbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.nav-right {
+  display: flex;
+  align-items: center;
+  gap: 1em;
+  margin-left: auto;
+}
+
+.navbar ul li a {
   color: #1f2329;
 }
