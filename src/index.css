@@ -8,7 +8,6 @@ header {
   padding: 1em;
   position: fixed;
   width: 98%;
-  top: 10;
   left: 0;
   height: 3em;
   z-index: 9999;
@@ -24,10 +23,7 @@ h1 {
   color: #1f2329;
 }
 
-form {
-  color: #1f2329;
-}
-
+form,
 ul {
   color: #1f2329;
 }
@@ -36,6 +32,9 @@ ul {
   display: flex;
   align-items: center;
   justify-content: space-between;
+
+  position: relative;
+  perspective: 600px; /* Matches Wes Bos “3D” perspective effect */
 }
 
 .nav-right {
@@ -47,11 +46,6 @@ ul {
 
 .navbar ul li a {
   color: #1f2329;
-}
-
-.navbar {
-  position: relative;
-  perspective: 600px;
 }
 
 .dropdownBackground {
@@ -78,7 +72,7 @@ ul {
   position: absolute;
   width: 20px;
   height: 20px;
-  background: white;
+  background: #fff;
   transform: translateY(-50%) rotate(45deg);
   top: 0;
   left: 50%;
@@ -94,17 +88,20 @@ ul {
   position: absolute;
   top: 100%;
   right: 0;
+  padding: 20px;
   background: white;
-  border-radius: 4px;
-  padding: 1em;
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+  border-radius: 2px;
+  box-shadow: 0 50px 100px rgba(50, 50, 93, 0.1), 0 15px 35px rgba(50, 50, 93, 0.15), 0 5px 15px rgba(0, 0, 0, 0.1);
   opacity: 0;
   transform: translateY(20px);
-  transition: opacity 0.3s, transform 0.3s;
+  transition: all 0.5s;
+  will-change: opacity, transform;
   display: none;
+  overflow: hidden;
   z-index: 1000;
 }
 
+/* Show the dropdown */
 .show-dropdown .singup-content,
 .show-dropdown .login-content {
   display: block;
