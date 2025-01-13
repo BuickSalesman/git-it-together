@@ -1,9 +1,10 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import axios from "axios";
 
-export function LoginDropdown() {
-  const [showDropdown, setShowDropdown] = useState(false);
+export function LoginDropdown({ onHover, onLeave }) {
+  const [show, setShow] = useState(false);
   const [errors, setErrors] = useState([]);
+  const contentRef = useRef();
 
   const accessToken = localStorage.getItem("accessToken");
   if (accessToken) {
@@ -26,25 +27,31 @@ export function LoginDropdown() {
       })
       .catch((error) => {
         console.log(error.response);
-        setErrors(["Invalid email or password"]);
+        setErrors(["Invalid username or password"]);
       });
   };
 
   return (
     <div
-      className="login-dropdown"
-      onMouseEnter={() => setShowDropdown(true)}
-      onMouseLeave={() => setShowDropdown(false)}
+      className={`login-dropdown ${show ? "show-dropdown" : ""}`}
+      onMouseEnter={() => {
+        setShow(true);
+        onHover?.(contentRef.current);
+      }}
+      onMouseLeave={() => {
+        setShow(false);
+        onLeave?.();
+      }}
     >
       <span className="login-trigger">Login</span>
 
-      {showDropdown && (
-        <div className="dropdown-content">
+      {show && (
+        <div className="login-content" ref={contentRef}>
           {errors.length > 0 && (
             <ul>
-              {errors.map((error) => {
-                <li key={error}>{error}</li>;
-              })}
+              {errors.map((error) => (
+                <li key={error}>{error}</li>
+              ))}
             </ul>
           )}
           <form onSubmit={handleSubmit}>

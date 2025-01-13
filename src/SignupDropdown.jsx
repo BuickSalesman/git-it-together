@@ -1,9 +1,11 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
+
 import axios from "axios";
 
-export function SingupDropdown() {
-  const [showDropdown, setShowDropdown] = useState(false);
+export function SingupDropdown({ onHover, onLeave }) {
+  const [show, setShow] = useState(false);
   const [errors, setErrors] = useState([]);
+  const contentRef = useRef();
 
   const handleSubmit = (event) => {
     event.preventDefault();
@@ -33,14 +35,20 @@ export function SingupDropdown() {
 
   return (
     <div
-      className="signup-dropdown"
-      onMouseEnter={() => setShowDropdown(true)}
-      onMouseLeave={() => setShowDropdown(false)}
+      className={`signup-dropdown ${show ? "show-dropdown" : ""}`}
+      onMouseEnter={() => {
+        setShow(true);
+        onHover?.(contentRef.current);
+      }}
+      onMouseLeave={() => {
+        setShow(false);
+        onLeave?.();
+      }}
     >
       <span className="signup-trigger">Signup</span>
 
-      {showDropdown && (
-        <div className="singup-content">
+      {show && (
+        <div className="singup-content" ref={contentRef}>
           {errors.length > 0 && (
             <ul>
               {errors.map((error) => {
