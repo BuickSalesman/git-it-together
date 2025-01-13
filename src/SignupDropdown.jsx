@@ -41,7 +41,6 @@ export function SingupDropdown() {
 
       {showDropdown && (
         <div className="singup-content">
-          <h3>Signup</h3>
           {errors.length > 0 && (
             <ul>
               {errors.map((error) => {

@@ -40,7 +40,6 @@ export function LoginDropdown() {
 
       {showDropdown && (
         <div className="dropdown-content">
-          <h3>Login</h3>
           {errors.length > 0 && (
             <ul>
               {errors.map((error) => {

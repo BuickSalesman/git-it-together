@@ -1,6 +1,6 @@
 export function Content() {
   return (
-    <div>
+    <div className="content">
       <h1>git-it-together</h1>
     </div>
   );
