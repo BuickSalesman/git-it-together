@@ -1,5 +1,5 @@
 import { Header } from "./Header";
-import { Content } from "./Content";
+import { Content } from "./components/Content";
 import { BrowserRouter } from "react-router-dom";
 
 function App() {
