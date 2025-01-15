@@ -1,4 +1,8 @@
 .repo-card {
   border: 2px solid black;
   background-color: grey;
+
+  width: 90%;
+
+  aspect-ratio: 16/9;
 }

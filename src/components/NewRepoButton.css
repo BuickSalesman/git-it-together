@@ -1,5 +1,13 @@
 .new-repo-button {
+  width: 85%;
+
+  margin: 0 auto;
   .create-repo-button {
     background-color: red;
+    width: 100%;
+
+    aspect-ratio: 16/9;
+
+    cursor: pointer;
   }
 }
