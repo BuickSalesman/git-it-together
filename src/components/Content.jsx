@@ -1,11 +1,11 @@
 import { RepoCard } from "./RepoCard";
 import { NewRepoButton } from "./NewRepoButton";
+import "./Content.css";
 
 export function Content() {
   return (
     <div className="content">
-      <h1>git-it-together</h1>
-      <div>
+      <div className="repo-container">
         <RepoCard />
         <RepoCard />
         <RepoCard />

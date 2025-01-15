@@ -3,6 +3,7 @@ import { LoginDropdown } from "./LoginDropdown";
 import { SingupDropdown } from "./SignupDropdown";
 import { LogoutLink } from "./LogoutLink";
 import { useState, useRef } from "react";
+import "./Header.css";
 
 export function Header() {
   const accessToken = localStorage.getItem("accessToken");
@@ -32,11 +33,13 @@ export function Header() {
   };
 
   return (
-    <header>
+    <header className="header">
       <nav className="navbar">
         <div className={`dropdownBackground ${isOpen ? "open" : ""}`} style={backgroundStyle} ref={backgroundRef}>
           <span className="arrow"></span>
         </div>
+
+        <div className="nav-left">username</div>
 
         <div className="nav-right">
           {accessToken ? (
