@@ -1,5 +1,5 @@
 import { RepoCard } from "./RepoCard";
-import { NewRepoButton } from "./NewRepoButton";
+import { NEwRepoContainer } from "./NewRepoContainer";
 import "./Content.css";
 
 export function Content() {
@@ -9,7 +9,7 @@ export function Content() {
         <RepoCard />
         <RepoCard />
         <RepoCard />
-        <NewRepoButton />
+        <NEwRepoContainer />
       </div>
     </div>
   );
