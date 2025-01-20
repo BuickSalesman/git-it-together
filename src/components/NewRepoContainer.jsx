@@ -2,7 +2,7 @@ import { useState } from "react";
 import { NewRepoButton } from "./NewRepoButton";
 import { NewRepoModal } from "./NewRepoModal";
 
-export function NEwRepoContainer() {
+export function NewRepoContainer() {
   const [showModal, setShowModal] = useState(false);
 
   const handleOpenModal = () => {
