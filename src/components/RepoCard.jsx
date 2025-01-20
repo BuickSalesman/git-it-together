@@ -12,9 +12,9 @@ export function RepoCard() {
           startDate={shiftDate(today, -365)}
           endDate={today}
           values={[
-            { date: "2025-01-01", count: 12 },
-            { date: "2025-01-02", count: 122 },
-            { date: "2025-01-10", count: 38 },
+            { date: "2025-01-01", count: 1 },
+            { date: "2025-01-02", count: 2 },
+            { date: "2025-01-10", count: 3 },
             { date: "2024-01-01", count: 12 },
             { date: "2024-03-02", count: 122 },
             { date: "2024-03-10", count: 38 },
@@ -29,6 +29,12 @@ export function RepoCard() {
           showOutOfRangeDays={false}
           horizontal={true}
           gutterSize={2}
+          classForValue={(value) => {
+            if (!value) {
+              return "color-empty";
+            }
+            return `color-github-${value.count}`;
+          }}
         />
       </div>
       <div className="total-commits-container">total commits: 35</div>
