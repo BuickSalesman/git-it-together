@@ -1,6 +1,6 @@
 import "./RepoCard.css";
 import ReactCalendarHeatmap from "react-calendar-heatmap";
-import "react-calendar-heatmap/dist/styles.css";
+import "../calendar-heatmap-styles.css";
 
 const today = new Date();
 
