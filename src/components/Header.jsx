@@ -41,6 +41,8 @@ export function Header() {
 
         <div className="nav-left">username</div>
 
+        <div className="nav-center">searchbar</div>
+
         <div className="nav-right">
           {accessToken ? (
             <>

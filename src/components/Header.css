@@ -26,8 +26,7 @@
   .nav-right {
     display: flex;
     align-items: center;
-    gap: 1em;
-    margin-left: auto;
+    gap: 0.5em;
     background-color: green;
   }
 
@@ -108,4 +107,9 @@
     opacity: 1;
     transform: translateY(0);
   }
+}
+
+.nav-center {
+  background-color: blue;
+  margin: 0 auto;
 }
