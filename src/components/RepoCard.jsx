@@ -8,7 +8,7 @@ const values = [
   { date: "2025-01-02", count: 2 },
   { date: "2025-01-10", count: 3 },
   { date: "2024-01-01", count: 12 },
-  { date: "2024-03-02", count: 122 },
+  { date: "2024-03-02", count: 4 },
   { date: "2024-03-10", count: 38 },
   { date: "2024-03-03", count: 12 },
   { date: "2024-06-02", count: 122 },
@@ -16,6 +16,8 @@ const values = [
   { date: "2024-06-01", count: 12 },
   { date: "2024-10-02", count: 122 },
   { date: "2024-11-10", count: 38 },
+  { date: "2022-11-10", count: 38 },
+  { date: "2022-01-10", count: 38 },
 ];
 
 export function RepoCard() {
@@ -23,7 +25,7 @@ export function RepoCard() {
     <div className="repo-card">
       <div className="calendar-container">
         <ReactCalendarHeatmap
-          startDate={shiftDate(today, -365)}
+          startDate={shiftDate(today - 365, -365)}
           endDate={today}
           values={values}
           showWeekdayLabels={true}

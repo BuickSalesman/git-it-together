@@ -6,7 +6,26 @@
  */
 
 .react-calendar-heatmap {
-  display: flex;
+  display: inline-block !important;
+}
+
+.react-calendar-heatmap svg {
+  display: block;
+  width: auto !important;
+  height: auto !important;
+  max-width: none !important;
+  max-height: none !important;
+}
+
+.calendar-container {
+  height: 32rem;
+  width: 320rem;
+  overflow-x: auto;
+  overflow-y: hidden;
+}
+
+.repo-card {
+  overflow-x: scroll;
 }
 
 .react-calendar-heatmap text {
