@@ -109,11 +109,12 @@ const userActivity = [
 ];
 
 const HeatmapCalendar = ({ startDate, endDate, dataValues }) => {
-  let startingDate = new Date(startDate);
-  let endingDate = new Date(endDate);
-  const daysInMonth = Math.ceil((endingDate - startingDate) / (1000 * 60 * 60 * 24)) + 1;
+  const startingDate = typeof startDate === "string" ? new Date(startDate) : startDate;
+  const endingDate = typeof endDate === "string" ? new Date(endDate) : endDate;
 
-  const calendarGrid = Array.from({ length: daysInMonth }, (_, i) => {
+  const daysInRange = Math.ceil((endingDate - startingDate) / (1000 * 60 * 60 * 24)) + 1;
+
+  const calendarGrid = Array.from({ length: daysInRange }, (_, i) => {
     const date = new Date(startingDate);
     date.setDate(startingDate.getDate() + i);
     return date.toISOString().slice(0, 10);
@@ -161,6 +162,11 @@ const Heatmap = () => {
     setActivityData(userActivity);
   }, []);
 
+  const endDate = new Date();
+
+  const startDate = new Date();
+  startDate.setDate(startDate.getDate() - 365);
+
   return (
     <section className="heatmap-section">
       <div className="heatmap-wrapper">
@@ -169,7 +175,7 @@ const Heatmap = () => {
           <span>Wed</span>
           <span>Fri</span>
         </span>
-        <HeatmapCalendar startDate="2024-09-01" endDate="2024-12-13" dataValues={activityData} />
+        <HeatmapCalendar startDate={startDate} endDate={endDate} dataValues={activityData} />
       </div>
     </section>
   );
