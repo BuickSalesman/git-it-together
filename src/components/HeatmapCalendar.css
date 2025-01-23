@@ -10,6 +10,7 @@
 
 .heatmap-wrapper {
   display: flex;
+  outline: 1px solid black;
 }
 
 .heatmap-days-label {

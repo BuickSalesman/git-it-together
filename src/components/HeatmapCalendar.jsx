@@ -165,7 +165,7 @@ const Heatmap = () => {
   const endDate = new Date();
 
   const startDate = new Date();
-  startDate.setDate(startDate.getDate() - 365);
+  startDate.setFullYear(startDate.getFullYear() - 1);
 
   return (
     <section className="heatmap-section">
