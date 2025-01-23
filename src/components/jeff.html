@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>GitHub Contribution Chart</title>
+    <style>
+      .github-chart {
+        display: flex;
+        flex-wrap: wrap;
+        width: fit-content;
+        margin: 20px auto;
+        border: 1px solid #ddd;
+        padding: 10px;
+        border-radius: 4px;
+      }
+
+      .day {
+        width: 12px;
+        height: 12px;
+        margin: 1px;
+        border-radius: 2px;
+      }
+
+      .day.level-0 {
+        background-color: #ebedf0;
+      }
+
+      .day.level-1 {
+        background-color: #9be9a8;
+      }
+
+      .day.level-2 {
+        background-color: #40c463;
+      }
+
+      .day.level-3 {
+        background-color: #30a14e;
+      }
+
+      .day.level-4 {
+        background-color: #216e39;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="app"></div>
+
+    <script>
+      // Sample contribution data
+      const sampleData = [
+        { date: "2025-01-01", count: 2 },
+        { date: "2025-01-02", count: 7 },
+        { date: "2025-01-03", count: 15 },
+        // Add more as needed
+      ];
+
+      // Helper function to generate all days of the year
+      const generateDaysOfYear = () => {
+        const start = new Date(new Date().getFullYear(), 0, 1);
+        const end = new Date(new Date().getFullYear() + 1, 0, 1);
+        const days = [];
+        for (let date = start; date < end; date.setDate(date.getDate() + 1)) {
+          days.push(new Date(date));
+        }
+        return days;
+      };
+
+      // Map contribution data to a dictionary for easier lookup
+      const contributionsMap = sampleData.reduce((acc, { date, count }) => {
+        acc[date] = count;
+        return acc;
+      }, {});
+
+      const daysOfYear = generateDaysOfYear();
+
+      // Function to determine the intensity level based on contributions
+      const getIntensityClass = (count) => {
+        if (count === 0) return "level-0";
+        if (count <= 5) return "level-1";
+        if (count <= 10) return "level-2";
+        if (count <= 20) return "level-3";
+        return "level-4";
+      };
+
+      // Render the GitHub chart
+      const app = document.getElementById("app");
+      const chartContainer = document.createElement("div");
+      chartContainer.className = "github-chart";
+
+      daysOfYear.forEach((date) => {
+        const dateString = date.toISOString().split("T")[0];
+        const count = contributionsMap[dateString] || 0;
+        const intensityClass = getIntensityClass(count);
+
+        const dayElement = document.createElement("div");
+        dayElement.className = `day ${intensityClass}`;
+        dayElement.title = `${count} contributions on ${dateString}`;
+
+        chartContainer.appendChild(dayElement);
+      });
+
+      app.appendChild(chartContainer);
+    </script>
+  </body>
+</html>

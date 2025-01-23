@@ -25,7 +25,7 @@ export function RepoCard() {
     <div className="repo-card">
       <div className="calendar-container">
         <ReactCalendarHeatmap
-          startDate={shiftDate(today - 365, -365)}
+          startDate={shiftDate(today, -365)}
           endDate={today}
           values={values}
           showWeekdayLabels={true}
