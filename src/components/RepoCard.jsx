@@ -1,6 +1,5 @@
 import "./RepoCard.css";
-import ReactCalendarHeatmap from "react-calendar-heatmap";
-import "../calendar-heatmap-styles.css";
+import Heatmap from "./HeatmapCalendar";
 
 const today = new Date();
 const values = [
@@ -24,30 +23,10 @@ export function RepoCard() {
   return (
     <div className="repo-card">
       <div className="calendar-container">
-        <ReactCalendarHeatmap
-          startDate={shiftDate(today, -365)}
-          endDate={today}
-          values={values}
-          showWeekdayLabels={true}
-          showOutOfRangeDays={false}
-          horizontal={true}
-          gutterSize={2}
-          classForValue={(value) => {
-            if (!value) {
-              return "color-empty";
-            }
-            return `color-github-${value.count}`;
-          }}
-        />
+        <Heatmap />
       </div>
       <div className="total-commits-container">total commits: 35</div>
       <div className="streak-container">longest streak: 2 days</div>
     </div>
   );
-
-  function shiftDate(date, numDays) {
-    const newDate = new Date(date);
-    newDate.setDate(newDate.getDate() + numDays);
-    return newDate;
-  }
 }

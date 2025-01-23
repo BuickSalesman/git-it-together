@@ -10,6 +10,7 @@ export function NewRepoForm() {
           <input type="hidden" name="notes_enabled" value="false" />
           <input type="checkbox" name="notes_enabled" value="true" />
         </div>
+        <button>Submit</button>
       </form>
     </div>
   );
