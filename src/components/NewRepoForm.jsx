@@ -12,25 +12,30 @@ export function NewRepoForm() {
     const params = new FormData(event.target);
 
     axios
-      .post("http://localhost:8000/repos/create/", params)
+      .post("http://localhost:8000/repos/create/", params, {
+        headers: { Authorization: `Bearer ${localStorage.getItem("accessToken")}` },
+      })
       .then((reponse) => {
         console.log(reponse.data);
         event.target.reset();
         window.location.href = "/";
       })
       .catch((error) => {
-        console.log(error.response.data.errors);
-        setErrors(error.response.data.errors);
+        if (error.response && error.response.data && error.response.data.errors) {
+          setErrors(error.response.data.errors);
+        } else {
+          setErrors(["An unknown error occurred."]);
+        }
       });
   };
 
   return (
     <div id="new-repo-form-container">
-      {errors.length > 0 && (
+      {errors && errors.length > 0 && (
         <ul>
-          {errors.map((error) => {
-            <li key={error}>{error}</li>;
-          })}
+          {errors.map((error) => (
+            <li key={error}>{error}</li>
+          ))}
         </ul>
       )}
       <form onSubmit={handleSubmit} id="new-repo-form">

@@ -49,7 +49,7 @@ export function SingupDropdown({ onHover, onLeave }) {
 
       {show && (
         <div className="singup-content" ref={contentRef}>
-          {errors.length > 0 && (
+          {errors && errors.length > 0 && (
             <ul>
               {errors.map((error) => {
                 <li key={error}>{error}</li>;
