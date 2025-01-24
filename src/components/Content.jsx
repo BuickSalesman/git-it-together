@@ -5,37 +5,48 @@ import "./Content.css";
 import axios from "axios";
 
 export function Content() {
-  const [repos, setRepos] = useState([]);
+  const [allUserRepos, setAllUserRepos] = useState([]);
+  const [allUserCommits, setAllUserCommits] = useState([]);
 
   useEffect(() => {
-    const fetchRepos = async () => {
+    const fetchRepoAndCommitData = async () => {
       try {
         const accessToken = localStorage.getItem("accessToken");
-        const response = await axios.get("http://localhost:8000/repos/", {
+
+        const reposResponse = await axios.get("http://localhost:8000/repos/", {
           headers: {
             Authorization: `Bearer ${accessToken}`,
           },
         });
 
-        let data = response.data.user_repos;
+        const fetchedRepos = reposResponse.data.user_repos || [];
+        fetchedRepos.sort((a, b) => new Date(b.updated_at) - new Date(a.updated_at));
+        setAllUserRepos(fetchedRepos);
 
-        data.sort((a, b) => new Date(b.updated_at) - new Date(a.updated_at));
+        const commitsResponse = await axios.get("http://localhost:8000/commits/", {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+        });
 
-        setRepos(data);
+        const fetchedCommits = commitsResponse.data.user_commits || [];
+        setAllUserCommits(fetchedCommits);
       } catch (error) {
-        console.log("Error fetching repos:", error);
+        console.log("Error fetching repos or commits", error);
       }
     };
 
-    fetchRepos();
+    fetchRepoAndCommitData();
   }, []);
 
   return (
     <div className="content">
       <div className="repo-container">
-        {repos.map((repo) => (
-          <RepoCard key={repo.id} repo={repo} />
-        ))}
+        {allUserRepos.map((repo) => {
+          const repoCommits = allUserCommits.filter((commit) => commit.repo_name === repo.name);
+
+          return <RepoCard key={repo.id} repo={repo} commits={repoCommits} />;
+        })}
         <NewRepoContainer />
       </div>
     </div>

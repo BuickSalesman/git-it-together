@@ -1,12 +1,9 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
 import "./HeatmapCalendar.css";
 
-const userActivity = [];
-
 const HeatmapCalendar = ({ startDate, endDate, dataValues }) => {
-  const startingDate = typeof startDate === "string" ? new Date(startDate) : startDate;
-  const endingDate = typeof endDate === "string" ? new Date(endDate) : endDate;
+  const startingDate = new Date(startDate);
+  const endingDate = new Date(endDate);
 
   const daysInRange = Math.ceil((endingDate - startingDate) / (1000 * 60 * 60 * 24)) + 1;
 
@@ -16,10 +13,10 @@ const HeatmapCalendar = ({ startDate, endDate, dataValues }) => {
     return date.toISOString().slice(0, 10);
   });
 
-  const highestValue = dataValues?.reduce((max, current) => Math.max(max, current.count), -Infinity);
+  const highestValue = dataValues.reduce((max, current) => Math.max(max, current.count), 0);
 
   const getIntensity = (activityCount) => {
-    return highestValue !== 0 ? Number(activityCount / highestValue) : 0;
+    return highestValue !== 0 ? activityCount / highestValue : 0;
   };
 
   const getColorFromIntensity = (intensity) => {
@@ -33,16 +30,13 @@ const HeatmapCalendar = ({ startDate, endDate, dataValues }) => {
       {calendarGrid.map((day) => {
         const activityCount = dataValues.find((item) => item.date === day)?.count || 0;
         const intensity = getIntensity(activityCount);
-        const color = getColorFromIntensity(intensity);
-
+        const color = activityCount === 0 ? "#f6f8fa" : getColorFromIntensity(intensity);
         return (
           <div
             key={day}
             className="heatmap-day-cell"
             title={`${activityCount} Posts on ${day}`}
-            style={{
-              backgroundColor: activityCount === 0 ? "#f6f8fa" : color,
-            }}
+            style={{ backgroundColor: color }}
           />
         );
       })}
@@ -50,50 +44,25 @@ const HeatmapCalendar = ({ startDate, endDate, dataValues }) => {
   );
 };
 
-const Heatmap = () => {
+const Heatmap = ({ commits }) => {
   const [activityData, setActivityData] = useState([]);
 
-  //MAKE API CALL WITHIN THE USEFFECT BELOW, RIGHT NOW IS JUST DUMMY DATA
   useEffect(() => {
-    const fetchCommits = async () => {
-      try {
-        const accessToken = localStorage.getItem("accessToken");
-        const response = await axios.get("http://localhost:8000/commits/", {
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-          },
-        });
+    const countsByDate = {};
+    commits.forEach((commit) => {
+      const dateOnly = commit.created_at.slice(0, 10);
+      countsByDate[dateOnly] = (countsByDate[dateOnly] || 0) + 1;
+    });
 
-        console.log("Entire response data:", response.data);
+    const activityArray = Object.entries(countsByDate).map(([date, count]) => ({
+      date,
+      count,
+    }));
 
-        const commits = response.data.user_commits;
-
-        console.log("Commits array:", commits);
-
-        const countsByDate = {};
-        commits.forEach((commit) => {
-          const dateOnly = commit.created_at.slice(0, 10);
-          countsByDate[dateOnly] = (countsByDate[dateOnly] || 0) + 1;
-        });
-
-        const activityArray = Object.entries(countsByDate).map(([date, count]) => ({
-          date,
-          count,
-        }));
-
-        setActivityData(activityArray);
-      } catch (error) {
-        console.error("Error fetching commits:", error);
-        if (error.response) {
-          console.error("Error response data:", error.response.data);
-        }
-      }
-    };
-    fetchCommits();
-  }, []);
+    setActivityData(activityArray);
+  }, [commits]);
 
   const endDate = new Date();
-
   const startDate = new Date();
   startDate.setFullYear(startDate.getFullYear() - 1);
 
