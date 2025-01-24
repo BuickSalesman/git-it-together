@@ -15,7 +15,8 @@ export function NewRepoContainer() {
 
   return (
     <div>
-      <NewRepoButton onClick={handleOpenModal} />
+      {!showModal && <NewRepoButton onClick={handleOpenModal} />}
+
       {showModal && <NewRepoModal onClose={handleCloseModal} />}
     </div>
   );
