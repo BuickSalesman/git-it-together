@@ -2,6 +2,8 @@ import React, { useEffect, useState } from "react";
 import "./HeatmapCalendar.css"; // Import the new CSS file
 
 const userActivity = [
+  { date: "2024-01-27", count: 5 },
+  { date: "2024-02-01", count: 5 },
   { date: "2024-09-01", count: 5 },
   { date: "2024-09-02", count: 10 },
   { date: "2024-09-03", count: 0 },
