@@ -28,7 +28,7 @@ export function SingupDropdown({ onHover, onLeave }) {
         window.location.href = "/";
       })
       .catch((error) => {
-        console.log(error.response.data.erros);
+        console.log(error.response.data.errors);
         setErrors(error.response.data.errors);
       });
   };

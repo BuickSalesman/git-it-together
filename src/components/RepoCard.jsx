@@ -1,24 +1,6 @@
 import "./RepoCard.css";
 import Heatmap from "./HeatmapCalendar";
 
-const today = new Date();
-const values = [
-  { date: "2025-01-01", count: 1 },
-  { date: "2025-01-02", count: 2 },
-  { date: "2025-01-10", count: 3 },
-  { date: "2024-01-01", count: 12 },
-  { date: "2024-03-02", count: 4 },
-  { date: "2024-03-10", count: 38 },
-  { date: "2024-03-03", count: 12 },
-  { date: "2024-06-02", count: 122 },
-  { date: "2024-06-10", count: 400 },
-  { date: "2024-06-01", count: 12 },
-  { date: "2024-10-02", count: 122 },
-  { date: "2024-11-10", count: 38 },
-  { date: "2022-11-10", count: 38 },
-  { date: "2022-01-10", count: 38 },
-];
-
 export function RepoCard() {
   return (
     <div className="repo-card">
