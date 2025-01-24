@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import "./HeatmapCalendar.css"; // Import the new CSS file
+import "./HeatmapCalendar.css";
 
 const userActivity = [
   { date: "2024-01-27", count: 5 },
