@@ -35,7 +35,7 @@ const HeatmapCalendar = ({ startDate, endDate, dataValues }) => {
           <div
             key={day}
             className="heatmap-day-cell"
-            title={`${activityCount} Posts on ${day}`}
+            title={`${activityCount} commits on ${day}`}
             style={{ backgroundColor: color }}
           />
         );
