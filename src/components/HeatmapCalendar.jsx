@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import axios from "axios";
 import "./HeatmapCalendar.css";
 
 const userActivity = [];
@@ -54,7 +55,41 @@ const Heatmap = () => {
 
   //MAKE API CALL WITHIN THE USEFFECT BELOW, RIGHT NOW IS JUST DUMMY DATA
   useEffect(() => {
-    setActivityData(userActivity);
+    const fetchCommits = async () => {
+      try {
+        const accessToken = localStorage.getItem("accessToken");
+        const response = await axios.get("http://localhost:8000/commits/", {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+        });
+
+        console.log("Entire response data:", response.data);
+
+        const commits = response.data.user_commits;
+
+        console.log("Commits array:", commits);
+
+        const countsByDate = {};
+        commits.forEach((commit) => {
+          const dateOnly = commit.created_at.slice(0, 10);
+          countsByDate[dateOnly] = (countsByDate[dateOnly] || 0) + 1;
+        });
+
+        const activityArray = Object.entries(countsByDate).map(([date, count]) => ({
+          date,
+          count,
+        }));
+
+        setActivityData(activityArray);
+      } catch (error) {
+        console.error("Error fetching commits:", error);
+        if (error.response) {
+          console.error("Error response data:", error.response.data);
+        }
+      }
+    };
+    fetchCommits();
   }, []);
 
   const endDate = new Date();
