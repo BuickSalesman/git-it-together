@@ -49,7 +49,9 @@ export function DeleteRepoForm({ repoName, onClose }) {
           </label>
           <input type="text" name="name" value={typedName} onChange={(event) => setTypedName(event.target.value)} />
         </div>
-        <button type="submit" disabled={typedName !== repoName}></button>
+        <button type="submit" disabled={typedName !== repoName}>
+          Delete
+        </button>
       </form>
     </div>
   );
