@@ -34,7 +34,10 @@ export function RepoCard({ repo, commits }) {
 
   return (
     <div className="repo-card">
-      <h3>{repo.name}</h3>
+      <div className="username-and-delete-container">
+        <h3>{repo.name}</h3>
+        <button className="delete-button">&times;</button>
+      </div>
       <div className="calendar-container">
         <Heatmap commits={commits} repoCreationDate={repo.created_at} />
       </div>
