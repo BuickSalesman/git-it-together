@@ -46,6 +46,7 @@ export function DeleteRepoForm({ repoName, onClose }) {
         <div>
           <label>
             Please type <strong>{repoName}</strong> to confirm:
+            <p>This action cannot be undone.</p>
           </label>
           <input type="text" name="name" value={typedName} onChange={(event) => setTypedName(event.target.value)} />
         </div>
