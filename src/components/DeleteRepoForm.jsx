@@ -10,10 +10,9 @@ export function DeleteRepoForm({ repoName, onClose }) {
     event.preventDefault();
     setErrors([]);
 
-    const params = new FormData(event.target);
-
     axios
-      .delete("http://localhost:8000/repos/delete/", params, {
+      .delete("http://localhost:8000/repos/delete/", {
+        data: { name: typedName },
         headers: { Authorization: `Bearer ${localStorage.getItem("accessToken")}` },
       })
       .then((reponse) => {
