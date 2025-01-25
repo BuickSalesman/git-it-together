@@ -1,6 +1,8 @@
 import "./RepoCard.css";
 import Heatmap from "./HeatmapCalendar";
 
+import { DeleteRepoModal } from "./DeleteRepoModal"; // <-- import your modal
+
 function getLongestStreak(commitDates) {
   if (commitDates.length === 0) return 0;
 
