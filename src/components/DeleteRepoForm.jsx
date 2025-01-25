@@ -1,5 +1,6 @@
 import { useState } from "react";
 import axios from "axios";
+import "./DeleteRepoForm.css";
 
 export function DeleteRepoForm({ repoName, onClose }) {
   const [typedName, setTypedName] = useState("");

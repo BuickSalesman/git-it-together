@@ -1,4 +1,5 @@
 import { DeleteRepoForm } from "./DeleteRepoForm";
+import "./DeleteRepoModal.css";
 
 export function DeleteRepoModal({ onClose, repoName }) {
   return (
