@@ -1,10 +1,11 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import "./HeatmapCalendar.css";
 
 const HeatmapCalendar = ({ startDate, endDate, dataValues }) => {
+  const containerRef = useRef(null);
+
   const startingDate = new Date(startDate);
   const endingDate = new Date(endDate);
-
   const daysInRange = Math.ceil((endingDate - startingDate) / (1000 * 60 * 60 * 24)) + 1;
 
   const calendarGrid = Array.from({ length: daysInRange }, (_, i) => {
@@ -25,26 +26,34 @@ const HeatmapCalendar = ({ startDate, endDate, dataValues }) => {
     return colorCodes[colorIndex];
   };
 
+  useEffect(() => {
+    if (containerRef.current) {
+      containerRef.current.scrollLeft = containerRef.current.scrollWidth;
+    }
+  }, [dataValues]);
+
   return (
-    <div className="heatmap-grid">
-      {calendarGrid.map((day) => {
-        const activityCount = dataValues.find((item) => item.date === day)?.count || 0;
-        const intensity = getIntensity(activityCount);
-        const color = activityCount === 0 ? "#f6f8fa" : getColorFromIntensity(intensity);
-        return (
-          <div
-            key={day}
-            className="heatmap-day-cell"
-            title={`${activityCount} commits on ${day}`}
-            style={{ backgroundColor: color }}
-          />
-        );
-      })}
+    <div className="heatmap-grid-container" ref={containerRef}>
+      <div className="heatmap-grid">
+        {calendarGrid.map((day) => {
+          const activityCount = dataValues.find((item) => item.date === day)?.count || 0;
+          const intensity = getIntensity(activityCount);
+          const color = activityCount === 0 ? "#f6f8fa" : getColorFromIntensity(intensity);
+          return (
+            <div
+              key={day}
+              className="heatmap-day-cell"
+              title={`${activityCount} commits on ${day}`}
+              style={{ backgroundColor: color }}
+            />
+          );
+        })}
+      </div>
     </div>
   );
 };
 
-const Heatmap = ({ commits }) => {
+const Heatmap = ({ commits, repoCreationDate }) => {
   const [activityData, setActivityData] = useState([]);
 
   useEffect(() => {
@@ -62,8 +71,10 @@ const Heatmap = ({ commits }) => {
     setActivityData(activityArray);
   }, [commits]);
 
+  const creationDate = new Date(repoCreationDate);
+  const creationYear = creationDate.getFullYear();
+  const startDate = new Date(creationYear, 0, 1);
   const endDate = new Date();
-  const startDate = new Date();
   startDate.setFullYear(startDate.getFullYear() - 1);
 
   return (

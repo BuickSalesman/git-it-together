@@ -36,7 +36,7 @@ export function RepoCard({ repo, commits }) {
     <div className="repo-card">
       <h3>{repo.name}</h3>
       <div className="calendar-container">
-        <Heatmap commits={commits} />
+        <Heatmap commits={commits} repoCreationDate={repo.created_at} />
       </div>
       <div className="total-commits-container">total commits: {totalCommits}</div>
       <div className="streak-container">longest streak: {longestStreak} days</div>

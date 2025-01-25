@@ -25,11 +25,17 @@
   padding-right: 0.75rem;
 }
 
+.heatmap-grid-container {
+  overflow-x: auto;
+  max-width: 100%;
+  width: 18rem;
+}
+
 .heatmap-grid {
   display: grid;
   grid-auto-flow: column;
-  gap: 0.1rem;
   grid-template-rows: repeat(7, minmax(0, 1fr));
+  gap: 0.1rem;
 }
 
 .heatmap-day-cell {
