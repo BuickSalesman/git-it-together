@@ -39,7 +39,7 @@ export function RepoCard({ repo, commits }) {
   return (
     <div className="repo-card">
       <div className="username-and-delete-container">
-        <button className="new-commit-button">&plus;</button>
+        <button className="new-commit-button">Add Commit</button>
         <h3>{repo.name}</h3>
         <button className="delete-button" onClick={() => setShowModal(true)}>
           &times;
