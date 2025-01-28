@@ -1,7 +1,7 @@
 import "./RepoCard.css";
 import Heatmap from "./HeatmapCalendar";
 
-import { DeleteRepoModal } from "./DeleteRepoModal"; // <-- import your modal
+import { DeleteRepoModal } from "./DeleteRepoModal";
 import { useState } from "react";
 
 function getLongestStreak(commitDates) {
