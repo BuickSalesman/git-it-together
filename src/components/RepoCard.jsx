@@ -1,4 +1,5 @@
 import "./RepoCard.css";
+import CommitButton from "./CommitButton";
 import Heatmap from "./HeatmapCalendar";
 
 import { DeleteRepoModal } from "./DeleteRepoModal";
@@ -28,6 +29,10 @@ function getLongestStreak(commitDates) {
   return longestStreak;
 }
 
+const handleNewCommit = (createdCommitData) => {
+  console.log("New commit created:", createdCommitData);
+};
+
 export function RepoCard({ repo, commits }) {
   const [showModal, setShowModal] = useState(false);
 
@@ -39,7 +44,7 @@ export function RepoCard({ repo, commits }) {
   return (
     <div className="repo-card">
       <div className="username-and-delete-container">
-        <button className="new-commit-button">Add Commit</button>
+        <CommitButton repoName={repo.name} onCommitCreated={handleNewCommit} />
         <h3>{repo.name}</h3>
         <button className="delete-button" onClick={() => setShowModal(true)}>
           &times;
