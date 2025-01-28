@@ -6,7 +6,7 @@ const HeatmapCalendar = ({ startDate, endDate, dataValues }) => {
 
   const startingDate = new Date(startDate);
   const endingDate = new Date(endDate);
-  const daysInRange = Math.ceil((endingDate - startingDate) / (1000 * 60 * 60 * 24)) + 1;
+  const daysInRange = Math.ceil((endingDate - startingDate) / (1000 * 60 * 60 * 24));
 
   const calendarGrid = Array.from({ length: daysInRange }, (_, i) => {
     const date = new Date(startingDate);
