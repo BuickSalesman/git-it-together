@@ -73,9 +73,12 @@ const Heatmap = ({ commits, repoCreationDate }) => {
 
   const creationDate = new Date(repoCreationDate);
   const creationYear = creationDate.getFullYear();
-  const startDate = new Date(creationYear, 0, 1);
+  const startDate = new Date(repoCreationDate);
+  startDate.setFullYear(creationDate.getFullYear() - 1);
+  startDate.setDate(startDate.getDate());
+  const dayOfWeek = startDate.getDay();
+  console.log(dayOfWeek);
   const endDate = new Date();
-  startDate.setFullYear(startDate.getFullYear() - 1);
 
   return (
     <section className="heatmap-section">
