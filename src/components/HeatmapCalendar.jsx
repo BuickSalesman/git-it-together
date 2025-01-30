@@ -71,13 +71,27 @@ const Heatmap = ({ commits, repoCreationDate }) => {
     setActivityData(activityArray);
   }, [commits]);
 
-  const creationDate = new Date(repoCreationDate);
-  const creationYear = creationDate.getFullYear();
-  const startDate = new Date(repoCreationDate);
-  startDate.setFullYear(creationDate.getFullYear() - 1);
-  startDate.setDate(startDate.getDate());
-  const dayOfWeek = startDate.getDay();
-  console.log(dayOfWeek);
+  function getOneYearAgoSundayUTC(dateString) {
+    // 1) Parse as local time, then extract its UTC fields
+    const localDate = new Date(dateString);
+    const year = localDate.getUTCFullYear();
+    const month = localDate.getUTCMonth();
+    const day = localDate.getUTCDate();
+
+    // 2) Construct a new Date in UTC, exactly 1 year earlier
+    const utcDate = new Date(Date.UTC(year - 1, month, day));
+    // zero out hours/min/sec if you only want the date:
+    utcDate.setUTCHours(0, 0, 0, 0);
+
+    // 3) Shift back to Sunday by dayOfWeek in UTC
+    const dow = utcDate.getUTCDay(); // 0 = Sunday in UTC
+    utcDate.setUTCDate(utcDate.getUTCDate() - dow);
+
+    return utcDate; // This is Sunday in UTC
+  }
+
+  const startDate = getOneYearAgoSundayUTC(repoCreationDate);
+
   const endDate = new Date();
 
   return (

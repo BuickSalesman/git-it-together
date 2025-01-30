@@ -56,6 +56,7 @@ export function RepoCard({ repo, commits }) {
       <div className="total-commits-container">total commits: {totalCommits}</div>
       <div className="streak-container">longest streak: {longestStreak} days</div>
       <div className="last-updated">Last commit: {new Date(repo.updated_at).toLocaleString()}</div>
+      <div className="last-updated">created on: {new Date(repo.created_at).toLocaleString()}</div>
 
       {showModal && <DeleteRepoModal onClose={() => setShowModal(false)} repoName={repo.name} />}
     </div>
