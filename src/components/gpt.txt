@@ -1,0 +1,1136 @@
+views.py:
+
+from django.contrib.auth import authenticate
+from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import IsAuthenticated, AllowAny
+from rest_framework.response import Response
+
+from django.shortcuts import render
+
+# Create your views here.
+
+from .models import User, Repo, Commit
+
+# region USER
+
+
+@api_view(["POST"])
+@permission_classes([AllowAny])
+def jwt_generation(request):
+    data = request.data
+    username = data.get("username")
+    password = data.get("password")
+
+    if not username or not password:
+        return Response({"error": "Username and password are required."}, status=400)
+
+    user = authenticate(username=username, password=password)
+    if user is not None:
+        refresh = RefreshToken.for_user(user)
+        return Response({
+            "refresh": str(refresh),
+            "access": str(refresh.access_token),
+        }, status=200)
+    else:
+        return Response({"error": "Invalid username or password"}, status=401)
+
+
+@api_view(["POST"])
+@permission_classes([AllowAny])
+def create_user(request):
+    data = request.data
+    username = data.get("username")
+    password = data.get("password")
+    password_confirmation = data.get("password_confirmation")
+
+    if not username or not password:
+        return Response({"error": "Username and password are required"}, status=400)
+
+    if not password_confirmation or password != password_confirmation:
+        return Response({"error": "Passwords do not match"}, status=400)
+
+    if User.objects.filter(username=username).exists():
+        return Response({"error": "A user with that username already exists"}, status=400)
+
+    user = User.objects.create_user(username=username, password=password)
+
+    return Response({"message": "User created succesfully"}, status=200)
+
+
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
+def get_current_user(request):
+    user = request.user
+    user_data = {
+        "username": user.username,
+        "date_joined": user.date_joined.isoformat()
+    }
+    return Response({"user": user_data}, status=200)
+
+
+@api_view(["PATCH"])
+@permission_classes([IsAuthenticated])
+def update_current_user(request):
+    user = request.user
+    data = request.data
+
+    new_username = data.get("new_username", None)
+    new_password = data.get("new_password", None)
+
+    if new_username and new_username != user.username:
+        if User.objects.filter(username=new_username).exists():
+            return Response({"error": "This username is already taken"}, status=400)
+        user.username = new_username
+
+    if new_password:
+        user.set_password(new_password)
+
+    user.save()
+
+    return Response({
+        "message": "User updated successfully",
+        "user_id": user.id,
+        "username": user.username
+    }, status=200)
+
+
+@api_view(["DELETE"])
+@permission_classes([IsAuthenticated])
+def delete_current_user(request):
+    user = request.user
+    user.delete()
+
+    return Response({
+        "message": "User deleted successfully",
+        "username": user.username
+    }, status=200)
+
+# endregion USER
+# region REPOS
+
+
+@api_view(["POST"])
+@permission_classes([IsAuthenticated])
+def create_repo(request):
+    user = request.user
+    data = request.data
+
+    name = data.get("name")
+    notes_enabled = data.get("notes_enabled") == "true"
+
+    if not name:
+        return Response({"error": "Repository must have a name."}, status=400)
+
+    if Repo.objects.filter(user=user, name=name).exists():
+        return Response({"error": "A repo of this name already exists for this user."}, status=400)
+
+    repo = Repo.objects.create(
+        user=user,
+        name=name,
+        notes_enabled=notes_enabled
+    )
+
+    commit = Commit.objects.create(
+        repo=repo
+    )
+
+    repo.save()
+
+    return Response({
+        "message": "Repository created successfully",
+        "repo_id": repo.id,
+        "user": user.username,
+        "name": repo.name,
+        "notes_enabled": repo.notes_enabled,
+        "created_at": repo.created_at.isoformat()
+    }, status=201)
+
+
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
+def get_repos(request):
+    user = request.user
+    repos = Repo.objects.filter(user=user).order_by("-updated_at")
+
+    user_repos = [
+        {
+            "id": repo.id,
+            "name": repo.name,
+            "notes_enabled": repo.notes_enabled,
+            "created_at": repo.created_at.isoformat(),
+            "updated_at": repo.updated_at.isoformat()
+        }
+        for repo in repos
+    ]
+
+    return Response({
+        "user_repos": user_repos
+    }, status=200)
+
+
+@api_view(["DELETE"])
+@permission_classes([IsAuthenticated])
+def delete_repo(request):
+    user = request.user
+    data = request.data
+    repo_name = data.get("name")
+
+    if not repo_name:
+        return Response({"error": "Repository name is required"}, status=400)
+
+    try:
+        repo = Repo.objects.get(user=user, name=repo_name)
+    except Repo.DoesNotExist:
+        return Response({
+            "error": "Repository not found or doesn't belong to current user."
+        }, status=404)
+
+    repo.delete()
+    return Response({"message": "Repo deleted successfully"}, status=200)
+
+
+# endregion REPOS
+# region COMMITS
+
+@api_view(["POST"])
+@permission_classes([IsAuthenticated])
+def create_commit(request):
+    user = request.user
+    data = request.data
+
+    repo_name = data.get("name")
+    note_title = data.get("note_title", None)
+    note_body = data.get("note_body", None)
+
+    if not repo_name:
+        return Response({"error": "Repo name is required"}, status=400)
+
+    try:
+        repo = Repo.objects.get(user=user, name=repo_name)
+    except Repo.DoesNotExist:
+        return Response({"error": "Repo does not exist for this user."}, status=404)
+
+    commit = Commit.objects.create(
+        repo=repo,
+        note_title=note_title,
+        note_body=note_body
+    )
+
+    repo.save()
+
+    return Response({
+        "message": "Commit created successfully",
+        "commit_id": commit.id,
+        "repo": repo.name,
+        "user": user.username,
+        "note_title": commit.note_title,
+        "note_body": commit.note_body,
+        "created_at": commit.created_at.isoformat()
+    }, status=201)
+
+
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
+def get_commits(request):
+    user = request.user
+    commits = Commit.objects.filter(repo__user=user)
+
+    user_commits = [
+        {
+            "id": commit.id,
+            "note_title": commit.note_title,
+            "note_body": commit.note_body,
+            "created_at": commit.created_at.isoformat(),
+            "repo_name": commit.repo.name
+        }
+        for commit in commits
+    ]
+
+    return Response({
+        "user_commits": user_commits
+    }, status=200)
+
+# endregion COMMITS
+
+models.py:
+
+from django.db import models
+from django.contrib.auth.models import User
+
+
+class Repo(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    name = models.CharField(max_length=100)
+    notes_enabled = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        unique_together = ('user', 'name')
+
+
+class Commit(models.Model):
+    repo = models.ForeignKey(Repo, on_delete=models.CASCADE)
+    created_at = models.DateTimeField(auto_now_add=True)
+    note_title = models.CharField(max_length=100, null=True, blank=True)
+    note_body = models.TextField(null=True, blank=True)
+
+
+urls.py:
+
+"""
+URL configuration for git_it_together_backend project.
+
+The `urlpatterns` list routes URLs to views. For more information please see:
+    https://docs.djangoproject.com/en/5.1/topics/http/urls/
+Examples:
+Function views
+    1. Add an import:  from my_app import views
+    2. Add a URL to urlpatterns:  path(", views.home, name="home")
+Class-based views
+    1. Add an import:  from other_app.views import Home
+    2. Add a URL to urlpatterns:  path(", Home.as_view(), name="home")
+Including another URLconf
+    1. Import the include() function: from django.urls import include, path
+    2. Add a URL to urlpatterns:  path("blog/", include("blog.urls"))
+"""
+from django.contrib import admin
+from django.urls import path
+from core.views import create_user, create_repo, create_commit
+from core.views import update_current_user
+from core.views import delete_current_user, delete_repo
+from core.views import get_current_user, get_repos, get_commits
+from core.views import jwt_generation
+# get_repos, get_commits
+
+from rest_framework_simplejwt.views import (
+    TokenObtainPairView,
+    TokenRefreshView,
+)
+
+urlpatterns = [
+    path("admin/", admin.site.urls),
+
+    path("users/create/", create_user, name="create_user"),
+    path("users/me/", get_current_user, name="get_current_user"),
+    path("users/me/update/", update_current_user, name="update_current_user"),
+    path("users/me/delete/", delete_current_user, name="delete_current_user"),
+
+    path("repos/create/", create_repo, name="create_repo"),
+    path("repos/", get_repos, name="get_repos"),
+    path("repos/delete/", delete_repo, name="delete_repo"),
+
+    path("commits/create/", create_commit, name="create_commit"),
+    path("commits/", get_commits, name="get_commits"),
+
+    path("auth/token/", jwt_generation, name="jwt_generation"),
+
+    path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
+    path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+]
+
+settings.py:
+
+"""
+Django settings for git_it_together_backend project.
+
+Generated by 'django-admin startproject' using Django 5.1.3.
+
+For more information on this file, see
+https://docs.djangoproject.com/en/5.1/topics/settings/
+
+For the full list of settings and their values, see
+https://docs.djangoproject.com/en/5.1/ref/settings/
+"""
+
+from decouple import config
+from pathlib import Path
+from datetime import timedelta
+
+
+# Build paths inside the project like this: BASE_DIR / 'subdir'.
+BASE_DIR = Path(__file__).resolve().parent.parent
+
+
+# Quick-start development settings - unsuitable for production
+# See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
+
+# SECURITY WARNING: keep the secret key used in production secret!
+SECRET_KEY = 'django-insecure-1cebq+&ca839@je002td&38ga2$ade%fhrc7urytr2-_89+*r3'
+
+# SECURITY WARNING: don't run with debug turned on in production!
+DEBUG = True
+
+ALLOWED_HOSTS = []
+
+
+# Application definition
+
+INSTALLED_APPS = [
+    'git_it_together_backend',
+    'django.contrib.admin',
+    'django.contrib.auth',
+    'django.contrib.contenttypes',
+    'django.contrib.sessions',
+    'django.contrib.messages',
+    'django.contrib.staticfiles',
+    'core',
+    'rest_framework',
+    'corsheaders',
+]
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ),
+    'DEFAULT_PERMISSION_CLASSES': (
+        'rest_framework.permissions.IsAuthenticated',
+    ),
+    # You can add more DRF settings here as needed
+}
+
+# Simple JWT Configuration
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=1440),
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=7),
+    'ROTATE_REFRESH_TOKENS': True,
+    'BLACKLIST_AFTER_ROTATION': True,
+    'ALGORITHM': 'HS256',
+    'SIGNING_KEY': SECRET_KEY,
+    'AUTH_HEADER_TYPES': ('Bearer',),
+}
+
+MIDDLEWARE = [
+    'django.middleware.security.SecurityMiddleware',
+    'django.contrib.sessions.middleware.SessionMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
+    'django.middleware.common.CommonMiddleware',
+    'django.middleware.csrf.CsrfViewMiddleware',
+    'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'django.contrib.messages.middleware.MessageMiddleware',
+    'django.middleware.clickjacking.XFrameOptionsMiddleware',
+]
+
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:3000",
+    "http://localhost:5173",
+    "http://localhost:8000",
+]
+
+ROOT_URLCONF = 'git_it_together_backend.urls'
+
+TEMPLATES = [
+    {
+        'BACKEND': 'django.template.backends.django.DjangoTemplates',
+        'DIRS': [],
+        'APP_DIRS': True,
+        'OPTIONS': {
+            'context_processors': [
+                'django.template.context_processors.debug',
+                'django.template.context_processors.request',
+                'django.contrib.auth.context_processors.auth',
+                'django.contrib.messages.context_processors.messages',
+            ],
+        },
+    },
+]
+
+WSGI_APPLICATION = 'git_it_together_backend.wsgi.application'
+
+
+# Database
+# https://docs.djangoproject.com/en/5.1/ref/settings/#databases
+
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': config('DB_NAME'),
+        'USER': config('DB_USER'),
+        'PASSWORD': config('DB_PASSWORD'),
+        'HOST': config('DB_HOST'),
+        'PORT': config('DB_PORT'),
+    }
+}
+
+
+# Password validation
+# https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators
+
+AUTH_PASSWORD_VALIDATORS = [
+    {
+        'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
+    },
+    {
+        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
+    },
+    {
+        'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
+    },
+    {
+        'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
+    },
+]
+
+
+# Internationalization
+# https://docs.djangoproject.com/en/5.1/topics/i18n/
+
+LANGUAGE_CODE = 'en-us'
+
+TIME_ZONE = 'UTC'
+
+USE_I18N = True
+
+USE_TZ = True
+
+
+# Static files (CSS, JavaScript, Images)
+# https://docs.djangoproject.com/en/5.1/howto/static-files/
+
+STATIC_URL = 'static/'
+
+# Default primary key field type
+# https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
+
+DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+main.jsx:
+
+import { StrictMode } from 'react'
+import { createRoot } from 'react-dom/client'
+import './index.css'
+import App from './App.jsx'
+
+createRoot(document.getElementById('root')).render(
+  <StrictMode>
+    <App />
+  </StrictMode>,
+)
+
+app.jsx:
+
+import { Header } from "./components/Header";
+import { Content } from "./components/Content";
+import { BrowserRouter } from "react-router-dom";
+
+function App() {
+  return (
+    <div>
+      <BrowserRouter>
+        <Header />
+        <Content />
+      </BrowserRouter>
+    </div>
+  );
+}
+
+export default App;
+
+Header.jsx:
+
+import { Link } from "react-router-dom";
+import { LoginDropdown } from "./LoginDropdown";
+import { SingupDropdown } from "./SignupDropdown";
+import { LogoutLink } from "./LogoutLink";
+import { useState, useRef } from "react";
+import "./Header.css";
+
+export function Header() {
+  const accessToken = localStorage.getItem("accessToken");
+
+  const [bgCoords, setBgCoords] = useState({ width: 0, height: 0, top: 0, left: 0 });
+  const [isOpen, setIsOpen] = useState(false);
+
+  const backgroundRef = useRef();
+
+  const moveBackground = (dropdownElement) => {
+    if (!dropdownElement) return;
+    const dropdownRect = dropdownElement.getBoundingClientRect();
+    const navRect = document.querySelector(".navbar").getBoundingClientRect();
+
+    const width = dropdownRect.width;
+    const height = dropdownRect.height;
+    const top = dropdownRect.top - navRect.top;
+    const left = dropdownRect.left - navRect.left;
+
+    setBgCoords({ width, height, top, left });
+  };
+
+  const backgroundStyle = {
+    width: bgCoords.width,
+    height: bgCoords.height,
+    transform: `translate(${bgCoords.left}px, ${bgCoords.top}px)`,
+  };
+
+  return (
+    <header className="header">
+      <nav className="navbar">
+        <div className={`dropdownBackground ${isOpen ? "open" : ""}`} style={backgroundStyle} ref={backgroundRef}>
+          <span className="arrow"></span>
+        </div>
+
+        <div className="nav-left">username</div>
+
+        <div className="nav-center">searchbar</div>
+
+        <div className="nav-right">
+          {accessToken ? (
+            <>
+              <Link to="/">Home</Link>
+              <LogoutLink />
+            </>
+          ) : (
+            <>
+              <SingupDropdown
+                onHover={(contentEl) => {
+                  moveBackground(contentEl);
+                  setIsOpen(true);
+                }}
+                onLeave={() => {
+                  setIsOpen(false);
+                }}
+              />
+              <LoginDropdown
+                onHover={(contentEl) => {
+                  moveBackground(contentEl);
+                  setIsOpen(true);
+                }}
+                onLeave={() => {
+                  setIsOpen(false);
+                }}
+              />
+            </>
+          )}
+        </div>
+      </nav>
+    </header>
+  );
+}
+
+Content.jsx:
+
+import { useState, useEffect } from "react";
+import { RepoCard } from "./RepoCard";
+import { NewRepoContainer } from "./NewRepoContainer";
+import "./Content.css";
+import axios from "axios";
+
+export function Content() {
+  const [allUserRepos, setAllUserRepos] = useState([]);
+  const [allUserCommits, setAllUserCommits] = useState([]);
+
+  useEffect(() => {
+    const fetchRepoAndCommitData = async () => {
+      try {
+        const accessToken = localStorage.getItem("accessToken");
+
+        const reposResponse = await axios.get("http://localhost:8000/repos/", {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+        });
+
+        const fetchedRepos = reposResponse.data.user_repos || [];
+        fetchedRepos.sort((a, b) => new Date(b.updated_at) - new Date(a.updated_at));
+        setAllUserRepos(fetchedRepos);
+
+        const commitsResponse = await axios.get("http://localhost:8000/commits/", {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+        });
+
+        const fetchedCommits = commitsResponse.data.user_commits || [];
+        setAllUserCommits(fetchedCommits);
+      } catch (error) {
+        console.log("Error fetching repos or commits", error);
+      }
+    };
+
+    fetchRepoAndCommitData();
+  }, []);
+
+  return (
+    <div className="content">
+      <div className="repo-container">
+        {allUserRepos.map((repo) => {
+          const repoCommits = allUserCommits.filter((commit) => commit.repo_name === repo.name);
+
+          return <RepoCard key={repo.id} repo={repo} commits={repoCommits} />;
+        })}
+        <NewRepoContainer />
+      </div>
+    </div>
+  );
+}
+
+CommitButton.jsx:
+
+import axios from "axios";
+import "./CommitButton.css";
+
+export default function CommitButton({ repoName, onCommitCreated }) {
+  const handleCommit = async () => {
+    try {
+      const accessToken = localStorage.getItem("accessToken");
+
+      const response = await axios.post(
+        "http://localhost:8000/commits/create/",
+        {
+          name: repoName,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+        }
+      );
+
+      if (onCommitCreated) {
+        onCommitCreated(response.data);
+      }
+
+      window.location.reload();
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  return (
+    <button className="new-commit-button" onClick={handleCommit}>
+      Add Commit
+    </button>
+  );
+}
+
+DeleteRepoForm.jsx:
+
+import { useState } from "react";
+import axios from "axios";
+import "./DeleteRepoForm.css";
+
+export function DeleteRepoForm({ repoName, onClose }) {
+  const [typedName, setTypedName] = useState("");
+  const [errors, setErrors] = useState([]);
+
+  const handleSubmit = (event) => {
+    event.preventDefault();
+    setErrors([]);
+
+    axios
+      .delete("http://localhost:8000/repos/delete/", {
+        data: { name: typedName },
+        headers: { Authorization: `Bearer ${localStorage.getItem("accessToken")}` },
+      })
+      .then((reponse) => {
+        console.log(reponse.data);
+        event.target.reset();
+        onClose && onClose();
+        window.location.href = "/";
+      })
+      .catch((error) => {
+        if (error.response?.data?.error) {
+          setErrors([error.response.data.error]);
+        } else if (error.response?.data?.errors) {
+          setErrors(error.response.data.errors);
+        } else {
+          setErrors(["An unknown error occurred."]);
+        }
+      });
+  };
+
+  return (
+    <div id="delete-repo-form-container">
+      {errors && errors.length > 0 && (
+        <ul>
+          {errors.map((error) => (
+            <li key={error}>{error}</li>
+          ))}
+        </ul>
+      )}
+
+      <form onSubmit={handleSubmit} id="delete-repo-form">
+        <div>
+          <label>
+            Please type <strong>{repoName}</strong> to confirm:
+            <p>This action cannot be undone.</p>
+          </label>
+          <input type="text" name="name" value={typedName} onChange={(event) => setTypedName(event.target.value)} />
+        </div>
+        <button type="submit" disabled={typedName !== repoName}>
+          Delete
+        </button>
+      </form>
+    </div>
+  );
+}
+
+DeleteRepoModal.jsx:
+
+import { DeleteRepoForm } from "./DeleteRepoForm";
+import "./DeleteRepoModal.css";
+
+export function DeleteRepoModal({ onClose, repoName }) {
+  return (
+    <div className="delete-modal-backdrop">
+      <div className="delete-modal-content">
+        <button className="close-button" onClick={onClose}>
+          &times;
+        </button>
+        <DeleteRepoForm repoName={repoName} onClose={onClose} />
+      </div>
+    </div>
+  );
+}
+
+LoginDropdown.jsx:
+
+import { useState, useRef } from "react";
+import axios from "axios";
+
+export function LoginDropdown({ onHover, onLeave }) {
+  const [show, setShow] = useState(false);
+  const [errors, setErrors] = useState([]);
+  const contentRef = useRef();
+
+  const accessToken = localStorage.getItem("accessToken");
+  if (accessToken) {
+    axios.defaults.headers.common["Authorization"] = `Bearer ${accessToken}`;
+  }
+
+  const handleSubmit = (event) => {
+    event.preventDefault();
+    setErrors([]);
+
+    const params = new FormData(event.target);
+    axios
+      .post("http://localhost:8000/auth/token/", params)
+      .then((response) => {
+        const accessToken = response.data.access;
+        axios.defaults.headers.common["Authorization"] = `Bearer ${accessToken}`;
+        localStorage.setItem("accessToken", accessToken);
+        event.target.reset();
+        window.location.href = "/";
+      })
+      .catch((error) => {
+        console.log(error.response);
+        setErrors(["Invalid username or password"]);
+      });
+  };
+
+  return (
+    <div
+      className={`login-dropdown ${show ? "show-dropdown" : ""}`}
+      onMouseEnter={() => {
+        setShow(true);
+        onHover?.(contentRef.current);
+      }}
+      onMouseLeave={() => {
+        setShow(false);
+        onLeave?.();
+      }}
+    >
+      <span className="login-trigger">Login</span>
+
+      {show && (
+        <div className="login-content" ref={contentRef}>
+          {errors.length > 0 && (
+            <ul>
+              {errors.map((error) => (
+                <li key={error}>{error}</li>
+              ))}
+            </ul>
+          )}
+          <form onSubmit={handleSubmit}>
+            <div>
+              Username: <input name="username" type="text" />
+            </div>
+            <div>
+              Password: <input name="password" type="password" />
+            </div>
+            <button type="submit">Login</button>
+          </form>
+        </div>
+      )}
+    </div>
+  );
+}
+
+LogoutLink.jsx:
+
+import axios from "axios";
+
+export function LogoutLink() {
+  const handleClick = (event) => {
+    event.preventDefault();
+    delete axios.defaults.headers.common["Authorization"];
+    localStorage.removeItem("accessToken");
+    window.location.href = "/";
+  };
+
+  return (
+    <a href="#" onClick={handleClick}>
+      Logout
+    </a>
+  );
+}
+
+NewRepoButton.jsx:
+
+import "./NewRepoButton.css";
+
+export function NewRepoButton({ onClick }) {
+  return (
+    <div className="new-repo-button">
+      <button className="create-repo-button" onClick={onClick}>
+        New Repo
+      </button>
+    </div>
+  );
+}
+
+NewRepoContainer.jsx:
+
+import { useState } from "react";
+import { NewRepoButton } from "./NewRepoButton";
+import { NewRepoModal } from "./NewRepoModal";
+
+export function NewRepoContainer() {
+  const [showModal, setShowModal] = useState(false);
+
+  const handleOpenModal = () => {
+    setShowModal(true);
+  };
+
+  const handleCloseModal = () => {
+    setShowModal(false);
+  };
+
+  return (
+    <div>
+      {!showModal && <NewRepoButton onClick={handleOpenModal} />}
+
+      {showModal && <NewRepoModal onClose={handleCloseModal} />}
+    </div>
+  );
+}
+
+NewRepoForm.jsx:
+
+import { useState } from "react";
+
+import axios from "axios";
+
+export function NewRepoForm() {
+  const [errors, setErrors] = useState([]);
+
+  const handleSubmit = (event) => {
+    event.preventDefault();
+    setErrors([]);
+
+    const params = new FormData(event.target);
+
+    axios
+      .post("http://localhost:8000/repos/create/", params, {
+        headers: { Authorization: `Bearer ${localStorage.getItem("accessToken")}` },
+      })
+      .then((reponse) => {
+        console.log(reponse.data);
+        event.target.reset();
+        window.location.href = "/";
+      })
+      .catch((error) => {
+        if (error.response && error.response.data && error.response.data.errors) {
+          setErrors(error.response.data.errors);
+        } else {
+          setErrors(["An unknown error occurred."]);
+        }
+      });
+  };
+
+  return (
+    <div id="new-repo-form-container">
+      {errors && errors.length > 0 && (
+        <ul>
+          {errors.map((error) => (
+            <li key={error}>{error}</li>
+          ))}
+        </ul>
+      )}
+      <form onSubmit={handleSubmit} id="new-repo-form">
+        <div>
+          Name: <input type="text" name="name" />
+        </div>
+        <div>
+          Notes Enabled:
+          <input type="hidden" name="notes_enabled" value="false" />
+          <input type="checkbox" name="notes_enabled" value="true" />
+        </div>
+        <button type="submit">Submit</button>
+      </form>
+    </div>
+  );
+}
+
+NewRepoModal.jsx:
+
+import { NewRepoForm } from "./NewRepoForm";
+
+export function NewRepoModal({ onClose }) {
+  return (
+    <div className="modal-backdrop">
+      <div className="modal-content">
+        <button className="close-button" onClick={onClose}>
+          &times;
+        </button>
+        <NewRepoForm />
+      </div>
+    </div>
+  );
+}
+
+RepoCard.jsx:
+
+import "./RepoCard.css";
+import CommitButton from "./CommitButton";
+import Heatmap from "./HeatmapCalendar";
+
+import { DeleteRepoModal } from "./DeleteRepoModal";
+import { useState } from "react";
+
+function getLongestStreak(commitDates) {
+  if (commitDates.length === 0) return 0;
+
+  const dates = commitDates.map((dateStr) => new Date(dateStr + "T00:00:00")).sort((a, b) => a - b);
+
+  let longestStreak = 1;
+  let currentStreak = 1;
+
+  for (let i = 1; i < dates.length; i++) {
+    const diffInMonths = dates[i] - dates[i - 1];
+    const diffInDays = diffInMonths / (1000 * 60 * 60 * 24);
+
+    if (diffInDays === 1) {
+      currentStreak++;
+    } else {
+      longestStreak = Math.max(longestStreak, currentStreak);
+      currentStreak = 1;
+    }
+  }
+
+  longestStreak = Math.max(longestStreak, currentStreak);
+  return longestStreak;
+}
+
+const handleNewCommit = (createdCommitData) => {
+  console.log("New commit created:", createdCommitData);
+};
+
+export function RepoCard({ repo, commits }) {
+  const [showModal, setShowModal] = useState(false);
+
+  const totalCommits = commits.length;
+
+  const uniqueDays = Array.from(new Set(commits.map((commit) => commit.created_at.slice(0, 10))));
+  const longestStreak = getLongestStreak(uniqueDays);
+
+  return (
+    <div className="repo-card">
+      <div className="username-and-delete-container">
+        <CommitButton repoName={repo.name} onCommitCreated={handleNewCommit} />
+        <h3>{repo.name}</h3>
+        <button className="delete-button" onClick={() => setShowModal(true)}>
+          &times;
+        </button>
+      </div>
+      <div className="calendar-container">
+        <Heatmap commits={commits} repoCreationDate={repo.created_at} />
+      </div>
+      <div className="total-commits-container">total commits: {totalCommits}</div>
+      <div className="streak-container">longest streak: {longestStreak} days</div>
+      <div className="last-updated">Last commit: {new Date(repo.updated_at).toLocaleString()}</div>
+      <div className="last-updated">created on: {new Date(repo.created_at).toLocaleString()}</div>
+
+      {showModal && <DeleteRepoModal onClose={() => setShowModal(false)} repoName={repo.name} />}
+    </div>
+  );
+}
+
+SignupDropdown.jsx:
+
+import { useState, useRef } from "react";
+
+import axios from "axios";
+
+export function SingupDropdown({ onHover, onLeave }) {
+  const [show, setShow] = useState(false);
+  const [errors, setErrors] = useState([]);
+  const contentRef = useRef();
+
+  const handleSubmit = (event) => {
+    event.preventDefault();
+    setErrors([]);
+
+    const params = new FormData(event.target);
+    const password = params.get("password");
+    const passwordConfirmation = params.get("password_confirmation");
+
+    if (password !== passwordConfirmation) {
+      setErrors(["Passwords do not match!"]);
+      return;
+    }
+
+    axios
+      .post("http://localhost:8000/users/create/", params)
+      .then((response) => {
+        console.log(response.data);
+        event.target.reset();
+        window.location.href = "/";
+      })
+      .catch((error) => {
+        console.log(error.response.data.errors);
+        setErrors(error.response.data.errors);
+      });
+  };
+
+  return (
+    <div
+      className={`signup-dropdown ${show ? "show-dropdown" : ""}`}
+      onMouseEnter={() => {
+        setShow(true);
+        onHover?.(contentRef.current);
+      }}
+      onMouseLeave={() => {
+        setShow(false);
+        onLeave?.();
+      }}
+    >
+      <span className="signup-trigger">Signup</span>
+
+      {show && (
+        <div className="singup-content" ref={contentRef}>
+          {errors && errors.length > 0 && (
+            <ul>
+              {errors.map((error) => {
+                <li key={error}>{error}</li>;
+              })}
+            </ul>
+          )}
+          <form onSubmit={handleSubmit}>
+            <div>
+              Username: <input type="text" name="username" />
+            </div>
+            <div>
+              Password: <input type="password" name="password" />
+            </div>
+            <div>
+              Password Confirmation: <input type="password" name="password_confirmation" />
+            </div>
+            <button type="submit">Signup!</button>
+          </form>
+        </div>
+      )}
+    </div>
+  );
+}
