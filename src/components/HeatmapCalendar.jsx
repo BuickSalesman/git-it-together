@@ -10,7 +10,7 @@ const HeatmapCalendar = ({ startDate, endDate, dataValues }) => {
 
   const calendarGrid = Array.from({ length: daysInRange }, (_, i) => {
     const date = new Date(startingDate);
-    date.setDate(startingDate.getDate() + i);
+    date.setUTCDate(startingDate.getUTCDate() + i);
     return date.toISOString().slice(0, 10);
   });
 
