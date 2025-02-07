@@ -13,7 +13,9 @@ const Heatmap = ({ commits, repoCreationDate }) => {
       range: 12,
       domain: {
         type: "month",
+        label: { text: "MMM" },
       },
+
       subDomain: { type: "ghDay", label: "YYYY-MM-DD", radius: 5, width: 50, height: 40 },
       date: {
         start: "2024-02-07",
