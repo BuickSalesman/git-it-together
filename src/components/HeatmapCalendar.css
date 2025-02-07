@@ -1,47 +1,14 @@
-.heatmap-section {
-  height: 30vh;
-  width: 100%;
-  background-color: #ffffff;
-  display: flex;
-  flex-direction: row;
-  justify-content: center;
-  align-items: center;
+/* Hide any cell marked as future unless it is also marked as “now” */
+.cal-heatmap rect.future:not(.now) {
+  display: none;
 }
 
-.heatmap-wrapper {
-  display: flex;
-  outline: 1px solid black;
+/* Reverse the entire container horizontally so that the latest month appears on the right */
+.heatmap-container {
+  transform: scaleX(-1);
 }
 
-.heatmap-days-label {
-  display: flex;
-  flex-direction: column;
-  justify-content: space-around;
-  padding-top: 0.5rem;
-  padding-bottom: 0.5rem;
-  color: #1f2329;
-  font-size: 0.75rem;
-  text-align: left;
-  padding-right: 0.75rem;
-}
-
-.heatmap-grid-container {
-  overflow-x: auto;
-  max-width: 100%;
-  width: 18rem;
-}
-
-.heatmap-grid {
-  display: grid;
-  grid-auto-flow: column;
-  grid-template-rows: repeat(7, minmax(0, 1fr));
-  gap: 0.1rem;
-}
-
-.heatmap-day-cell {
-  width: 1rem;
-  height: 1rem;
-  border-radius: 0.25rem;
-  cursor: pointer;
-  background-color: #9ca3af;
+/* Re-reverse text elements so that labels (and other text) appear normally */
+.heatmap-container text {
+  transform: scaleX(-1);
 }

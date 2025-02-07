@@ -10,8 +10,18 @@ const Heatmap = ({ commits, repoCreationDate }) => {
     const cal = new CalHeatmap();
     cal.paint({
       itemSelector: heatmapRef.current,
+      range: 12,
+      domain: {
+        type: "month",
+      },
+      subDomain: { type: "ghDay", label: "YYYY-MM-DD", radius: 5, width: 50, height: 40 },
+      date: {
+        start: "2024-02-07",
+        max: new Date(),
+        min: "2024-02-07",
+      },
     });
-  }, [commits, repoCreationDate]);
+  }, []);
 
   return <div ref={heatmapRef}></div>;
 };
