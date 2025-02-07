@@ -29,3 +29,16 @@
   cursor: pointer;
   padding: 0.25rem 0.5rem;
 }
+
+/* RepoCard.css */
+.calendar-container {
+  /* Make the container fill the available horizontal space */
+  width: 100%;
+
+  /* The key: Horizontal scrolling if content is too wide */
+  overflow-x: auto;
+
+  /* Optional: some padding or margin to look nice */
+  padding: 0.5rem;
+  box-sizing: border-box;
+}

@@ -9,46 +9,51 @@ const Heatmap = ({ commits, repoCreationDate }) => {
   useEffect(() => {
     if (!heatmapRef.current) return;
 
-    const dailyCommits = commits.reduce((acc, c) => {
-      const day = c.created_at.slice(0, 10);
-      acc[day] = (acc[day] || 0) + 1;
-      return acc;
-    }, {});
-
-    const maxDailyCommits = Math.max(...Object.values(dailyCommits));
+    const creationDate = new Date(repoCreationDate);
+    const startDate = new Date(creationDate);
+    startDate.setFullYear(startDate.getFullYear() - 1);
+    startDate.setHours(0, 0, 0, 0);
 
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
+    const maxDate = new Date(today);
+
+    const monthsDiff = getMonthsDiff(startDate, maxDate);
+
+    const dailyCommits = commits.reduce((acc, commit) => {
+      const day = commit.created_at.slice(0, 10); // 'YYYY-MM-DD'
+      acc[day] = (acc[day] || 0) + 1;
+      return acc;
+    }, {});
+    const maxDailyCommits = Math.max(...Object.values(dailyCommits), 0);
+
     const cal = new CalHeatmap();
     cal.paint({
-      // integrate dark light mode here later
-      // theme: "light",
       itemSelector: heatmapRef.current,
-      range: 13,
+      range: monthsDiff,
+
       domain: {
         type: "month",
-        label: { text: "MMM", position: "top", textAlign: "middle" },
-      },
-
-      //change type: "ghDay" for no gaps between months
-      subDomain: {
-        type: "day",
-        label: "YYYY-MM-DD",
-        radius: 5,
-        width: 50,
-        height: 40,
-        showOutOfDomain: true,
-        exclude: (date) => {
-          const isExcluded = date.getTime() > today.getTime();
-          console.log("Checking", date, "excluded?", isExcluded);
-          return isExcluded;
+        label: {
+          text: "MMM",
+          position: "top",
+          textAlign: "middle",
         },
       },
+      subDomain: {
+        type: "ghDay",
+        label: "MM-DD",
+        radius: 5,
+        width: 30,
+        height: 20,
+        showOutOfDomain: true,
+        exclude: (date) => date > today,
+      },
       date: {
-        start: "2024-02-07",
-        max: today,
-        min: "2024-02-07",
+        start: startDate,
+        min: startDate,
+        max: maxDate,
       },
       data: {
         source: commits,
@@ -65,13 +70,29 @@ const Heatmap = ({ commits, repoCreationDate }) => {
         },
       },
     });
-  }, [commits]);
+
+    setTimeout(() => {
+      const container = heatmapRef.current?.parentNode;
+      if (container) {
+        container.scrollLeft = container.scrollWidth;
+      }
+    }, 0);
+
+    return () => cal.destroy();
+  }, [commits, repoCreationDate]);
 
   if (!commits || commits.length === 0) {
     return null;
   }
 
-  return <div ref={heatmapRef}></div>;
+  return <div ref={heatmapRef} />;
 };
+
+// Helper: Calculate month difference between two dates
+function getMonthsDiff(startDate, endDate) {
+  return (
+    (endDate.getFullYear() - startDate.getFullYear()) * 12 + (endDate.getMonth() - startDate.getMonth()) + 1 // +1 so it includes the end month fully
+  );
+}
 
 export default Heatmap;
