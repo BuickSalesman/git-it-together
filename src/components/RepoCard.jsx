@@ -1,5 +1,5 @@
 import "./RepoCard.css";
-import CommitButton from "./CommitButton";
+import NewCommitButton from "./NewCommitButton";
 import Heatmap from "./HeatmapCalendar";
 
 import { DeleteRepoModal } from "./DeleteRepoModal";
@@ -44,7 +44,7 @@ export function RepoCard({ repo, commits }) {
   return (
     <div className="repo-card">
       <div className="username-and-delete-container">
-        <CommitButton repoName={repo.name} onCommitCreated={handleNewCommit} />
+        <NewCommitButton repoName={repo.name} notesEnabled={repo.notes_enabled} onCommitCreated={handleNewCommit} />
         <h3>{repo.name}</h3>
         <button className="delete-button" onClick={() => setShowModal(true)}>
           &times;
