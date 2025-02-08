@@ -21,18 +21,28 @@ const Heatmap = ({ commits, repoCreationDate }) => {
 
     const monthsDiff = getMonthsDiff(startDate, maxDate);
 
-    const dailyCommits = commits.reduce((acc, commit) => {
-      const day = commit.created_at.slice(0, 10); // 'YYYY-MM-DD'
-      acc[day] = (acc[day] || 0) + 1;
+    const dailyCounts = commits.reduce((acc, commit) => {
+      const dt = parseTimestamp(commit.created_at);
+
+      dt.setHours(0, 0, 0, 0);
+
+      const localDayStr = formatLocalYYYYMMDD(dt);
+
+      acc[localDayStr] = (acc[localDayStr] || 0) + 1;
       return acc;
     }, {});
-    const maxDailyCommits = Math.max(...Object.values(dailyCommits), 0);
+
+    const chartData = Object.entries(dailyCounts).map(([localDayStr, count]) => {
+      const dayDate = parseLocalMidnight(localDayStr);
+      return { date: dayDate, value: count };
+    });
+
+    const maxDailyCommits = Math.max(...Object.values(dailyCounts), 0);
 
     const cal = new CalHeatmap();
     cal.paint({
       itemSelector: heatmapRef.current,
       range: monthsDiff,
-
       domain: {
         type: "month",
         label: {
@@ -56,10 +66,10 @@ const Heatmap = ({ commits, repoCreationDate }) => {
         max: maxDate,
       },
       data: {
-        source: commits,
+        source: chartData,
         type: "json",
-        x: "created_at",
-        y: () => 1,
+        x: "date",
+        y: "value",
         aggregator: "sum",
       },
       scale: {
@@ -84,15 +94,28 @@ const Heatmap = ({ commits, repoCreationDate }) => {
   if (!commits || commits.length === 0) {
     return null;
   }
-
   return <div ref={heatmapRef} />;
 };
 
-// Helper: Calculate month difference between two dates
-function getMonthsDiff(startDate, endDate) {
-  return (
-    (endDate.getFullYear() - startDate.getFullYear()) * 12 + (endDate.getMonth() - startDate.getMonth()) + 1 // +1 so it includes the end month fully
-  );
+export default Heatmap;
+
+function parseTimestamp(tsString) {
+  const iso = tsString.replace(" ", "T");
+  return new Date(iso);
 }
 
-export default Heatmap;
+function parseLocalMidnight(dayStr) {
+  const [y, m, d] = dayStr.split("-").map(Number);
+  return new Date(y, m - 1, d, 0, 0, 0, 0);
+}
+
+function formatLocalYYYYMMDD(dt) {
+  const y = dt.getFullYear();
+  const m = String(dt.getMonth() + 1).padStart(2, "0");
+  const d = String(dt.getDate()).padStart(2, "0");
+  return `${y}-${m}-${d}`;
+}
+
+function getMonthsDiff(startDate, endDate) {
+  return (endDate.getFullYear() - startDate.getFullYear()) * 12 + (endDate.getMonth() - startDate.getMonth()) + 1;
+}
