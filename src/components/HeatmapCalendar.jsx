@@ -2,12 +2,20 @@ import CalHeatmap from "cal-heatmap";
 import "cal-heatmap/cal-heatmap.css";
 import { useEffect, useRef } from "react";
 import "./HeatmapCalendar.css";
+import Tooltip from "cal-heatmap/plugins/Tooltip";
 
 const Heatmap = ({ commits, repoCreationDate }) => {
   const heatmapRef = useRef(null);
 
   useEffect(() => {
     if (!heatmapRef.current) return;
+
+    const TOOLTIP_OPTIONS = {
+      enabled: true,
+      text: (timestamp, value, dayjsDate) => {
+        return `${value} commits on ${dayjsDate.format("YYYY-MM-DD")}`;
+      },
+    };
 
     const creationDate = new Date(repoCreationDate);
     const startDate = new Date(creationDate);
@@ -40,49 +48,49 @@ const Heatmap = ({ commits, repoCreationDate }) => {
     const maxDailyCommits = Math.max(...Object.values(dailyCounts), 0);
 
     const cal = new CalHeatmap();
-    cal.paint({
-      itemSelector: heatmapRef.current,
-      range: monthsDiff,
-      domain: {
-        type: "month",
-        label: {
-          text: "MMM",
-          position: "top",
-          textAlign: "middle",
+    cal.paint(
+      {
+        itemSelector: heatmapRef.current,
+        range: monthsDiff,
+        domain: {
+          type: "month",
+          label: {
+            text: "MMM",
+            position: "top",
+            textAlign: "middle",
+          },
+        },
+        subDomain: {
+          type: "ghDay",
+          label: "MM-DD",
+          radius: 5,
+          width: 30,
+          height: 20,
+          showOutOfDomain: true,
+          exclude: (date) => date > today,
+        },
+        date: {
+          start: startDate,
+          min: startDate,
+          max: maxDate,
+        },
+        data: {
+          source: chartData,
+          type: "json",
+          x: "date",
+          y: "value",
+          aggregator: "sum",
+        },
+        scale: {
+          color: {
+            range: ["#0D4429", "#016D32", "#26A641", "#3AD353"],
+            type: "quantize",
+            domain: [0, maxDailyCommits],
+          },
         },
       },
-      subDomain: {
-        type: "ghDay",
-        label: "MM-DD",
-        radius: 5,
-        width: 30,
-        height: 20,
-        showOutOfDomain: true,
-        exclude: (date) => date > today,
-      },
-      date: {
-        start: startDate,
-        min: startDate,
-        max: maxDate,
-      },
-      data: {
-        source: chartData,
-        type: "json",
-        x: "date",
-        y: "value",
-        aggregator: "sum",
-      },
-      scale: {
-        color: {
-          range: ["#0D4429", "#016D32", "#26A641", "#3AD353"],
-          type: "quantize",
-          domain: [0, maxDailyCommits],
-        },
-      },
-      tooltip: {
-        enabled: true,
-      },
-    });
+      [[Tooltip, TOOLTIP_OPTIONS]]
+    );
 
     setTimeout(() => {
       const container = heatmapRef.current?.parentNode;
