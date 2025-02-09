@@ -13,7 +13,7 @@ const Heatmap = ({ commits, repoCreationDate }) => {
     const TOOLTIP_OPTIONS = {
       enabled: true,
       text: (timestamp, value, dayjsDate) => {
-        return `${value} commits on ${dayjsDate.format("YYYY-MM-DD")}`;
+        return `${value ?? 0} commits on ${dayjsDate.format("YYYY-MM-DD")}`;
       },
     };
 
