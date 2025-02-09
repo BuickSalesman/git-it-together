@@ -79,6 +79,9 @@ const Heatmap = ({ commits, repoCreationDate }) => {
           domain: [0, maxDailyCommits],
         },
       },
+      tooltip: {
+        enabled: true,
+      },
     });
 
     setTimeout(() => {
