@@ -1,5 +1,3 @@
-// src/components/NewCommitButton.jsx
-
 import { useState } from "react";
 import axios from "axios";
 import { NewCommitModal } from "./NewCommitModal";
@@ -13,7 +11,7 @@ export default function NewCommitButton({ repoName, notesEnabled, onCommitCreate
       const accessToken = localStorage.getItem("accessToken");
       const response = await axios.post(
         "http://localhost:8000/commits/create/",
-        { name: repoName }, // no notes included
+        { name: repoName },
         {
           headers: {
             Authorization: `Bearer ${accessToken}`,
@@ -21,12 +19,10 @@ export default function NewCommitButton({ repoName, notesEnabled, onCommitCreate
         }
       );
 
-      // If parent (RepoCard) wants to do something with response
       if (onCommitCreated) {
         onCommitCreated(response.data);
       }
 
-      // Optionally refresh
       window.location.reload();
     } catch (error) {
       console.error(error);
@@ -41,7 +37,7 @@ export default function NewCommitButton({ repoName, notesEnabled, onCommitCreate
     setShowModal(false);
   };
 
-  // If the repo does NOT have notes enabled, do the same direct commit as before.
+  // If the repo does NOT have notes enabled
   if (!notesEnabled) {
     return (
       <button className="new-commit-button" onClick={handleDirectCommit}>
@@ -50,7 +46,7 @@ export default function NewCommitButton({ repoName, notesEnabled, onCommitCreate
     );
   }
 
-  // If notesEnabled == true, open a modal to enter the note title/body.
+  // Notes enabled
   return (
     <>
       <button className="new-commit-button" onClick={handleOpenModal}>
