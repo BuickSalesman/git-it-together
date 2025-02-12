@@ -1,11 +1,15 @@
 import CalHeatmap from "cal-heatmap";
 import "cal-heatmap/cal-heatmap.css";
-import { useEffect, useRef } from "react";
+import { useState, useEffect, useRef } from "react";
 import "./HeatmapCalendar.css";
 import Tooltip from "cal-heatmap/plugins/Tooltip";
+import NotesModal from "./CommitNotesModal";
 
-const Heatmap = ({ commits, repoCreationDate }) => {
+const Heatmap = ({ commits, repoCreationDate, notesEnabled }) => {
   const heatmapRef = useRef(null);
+
+  const [showNotesModal, setShowNotesModal] = useState(false);
+  const [selectedDayCommits, setSelectedDayCommits] = useState([]);
 
   useEffect(() => {
     if (!heatmapRef.current) return;
@@ -62,12 +66,21 @@ const Heatmap = ({ commits, repoCreationDate }) => {
         },
         subDomain: {
           type: "ghDay",
-          label: "MM-DD",
+          label: null,
           radius: 5,
-          width: 30,
+          width: 20,
           height: 20,
           showOutOfDomain: true,
           exclude: (date) => date > today,
+          onClick: (date) => {
+            if (notesEnabled) {
+              const commitsForDay = commits.filter(
+                (commit) => commit.created_at.slice(0, 10) === formatLocalYYYYMMDD(date)
+              );
+              setSelectedDayCommits(commitsForDay);
+              setShowNotesModal(true);
+            }
+          },
         },
         date: {
           start: startDate,
@@ -105,7 +118,12 @@ const Heatmap = ({ commits, repoCreationDate }) => {
   if (!commits || commits.length === 0) {
     return null;
   }
-  return <div ref={heatmapRef} />;
+  return (
+    <>
+      <div ref={heatmapRef} />
+      {showNotesModal && <NotesModal commitsForDay={selectedDayCommits} onClose={() => setShowNotesModal(false)} />}
+    </>
+  );
 };
 
 export default Heatmap;
