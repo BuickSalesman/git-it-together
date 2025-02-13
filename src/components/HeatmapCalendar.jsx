@@ -52,6 +52,16 @@ const Heatmap = ({ commits, repoCreationDate, notesEnabled }) => {
     const maxDailyCommits = Math.max(...Object.values(dailyCounts), 0);
 
     const cal = new CalHeatmap();
+    cal.on("click", (date) => {
+      if (notesEnabled) {
+        const clickedDate = new Date(date); // Convert to Date
+        const commitsForDay = commits.filter(
+          (commit) => commit.created_at.slice(0, 10) === formatLocalYYYYMMDD(clickedDate)
+        );
+        setSelectedDayCommits(commitsForDay);
+        setShowNotesModal(true);
+      }
+    });
     cal.paint(
       {
         itemSelector: heatmapRef.current,
@@ -72,15 +82,6 @@ const Heatmap = ({ commits, repoCreationDate, notesEnabled }) => {
           height: 20,
           showOutOfDomain: true,
           exclude: (date) => date > today,
-          onClick: (date) => {
-            if (notesEnabled) {
-              const commitsForDay = commits.filter(
-                (commit) => commit.created_at.slice(0, 10) === formatLocalYYYYMMDD(date)
-              );
-              setSelectedDayCommits(commitsForDay);
-              setShowNotesModal(true);
-            }
-          },
         },
         date: {
           start: startDate,
