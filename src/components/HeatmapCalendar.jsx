@@ -55,9 +55,9 @@ const Heatmap = ({ commits, repoCreationDate, notesEnabled }) => {
     cal.on("click", (date) => {
       if (notesEnabled) {
         const clickedDate = new Date(date); // Convert to Date
-        const commitsForDay = commits.filter(
-          (commit) => commit.created_at.slice(0, 10) === formatLocalYYYYMMDD(clickedDate)
-        );
+        const commitsForDay = commits
+          .filter((commit) => commit.created_at.slice(0, 10) === formatLocalYYYYMMDD(clickedDate))
+          .sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
         setSelectedDayCommits(commitsForDay);
         setShowNotesModal(true);
       }
