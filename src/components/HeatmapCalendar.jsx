@@ -52,15 +52,20 @@ const Heatmap = ({ commits, repoCreationDate, notesEnabled }) => {
     const maxDailyCommits = Math.max(...Object.values(dailyCounts), 0);
 
     const cal = new CalHeatmap();
-    cal.on("click", (date) => {
-      if (notesEnabled) {
-        const clickedDate = new Date(date); // Convert to Date
-        const commitsForDay = commits
-          .filter((commit) => commit.created_at.slice(0, 10) === formatLocalYYYYMMDD(clickedDate))
-          .sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
-        setSelectedDayCommits(commitsForDay);
-        setShowNotesModal(true);
-      }
+    cal.on("click", (evt, timestamp, value, rect) => {
+      const clickedDate = new Date(timestamp);
+      const formattedClickedDate = formatLocalYYYYMMDD(clickedDate);
+      console.log("Clicked date:", formattedClickedDate);
+
+      const commitsForDay = commits.filter((commit) => commit.created_at.slice(0, 10) === formattedClickedDate);
+      console.log("Filtered commits:", commitsForDay);
+      console.log(
+        "All commits with created_at:",
+        commits.map((c) => c.created_at)
+      );
+
+      setSelectedDayCommits(commitsForDay);
+      setShowNotesModal(true);
     });
     cal.paint(
       {
