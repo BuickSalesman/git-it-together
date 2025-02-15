@@ -68,7 +68,7 @@ const Heatmap = ({ commits, repoCreationDate, notesEnabled }) => {
         },
         subDomain: {
           type: "ghDay",
-          label: null,
+          label: "MM-DD",
           radius: 5,
           width: 20,
           height: 20,
