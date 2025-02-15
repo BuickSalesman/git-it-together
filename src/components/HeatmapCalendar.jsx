@@ -3,13 +3,12 @@ import "cal-heatmap/cal-heatmap.css";
 import { useState, useEffect, useRef } from "react";
 import "./HeatmapCalendar.css";
 import Tooltip from "cal-heatmap/plugins/Tooltip";
-import NotesModal from "./CommitNotesModal";
+// import NotesModal from "./CommitNotesModal";
 
 const Heatmap = ({ commits, repoCreationDate, notesEnabled }) => {
   const heatmapRef = useRef(null);
 
-  const [showNotesModal, setShowNotesModal] = useState(false);
-  const [selectedDayCommits, setSelectedDayCommits] = useState([]);
+  // const [showNotesModal, setShowNotesModal] = useState(false);
 
   useEffect(() => {
     if (!heatmapRef.current) return;
@@ -52,20 +51,8 @@ const Heatmap = ({ commits, repoCreationDate, notesEnabled }) => {
     const maxDailyCommits = Math.max(...Object.values(dailyCounts), 0);
 
     const cal = new CalHeatmap();
-    cal.on("click", (evt, timestamp, value, rect) => {
-      const clickedDate = new Date(timestamp);
-      const formattedClickedDate = formatLocalYYYYMMDD(clickedDate);
-      console.log("Clicked date:", formattedClickedDate);
-
-      const commitsForDay = commits.filter((commit) => commit.created_at.slice(0, 10) === formattedClickedDate);
-      console.log("Filtered commits:", commitsForDay);
-      console.log(
-        "All commits with created_at:",
-        commits.map((c) => c.created_at)
-      );
-
-      setSelectedDayCommits(commitsForDay);
-      setShowNotesModal(true);
+    cal.on("click", (date) => {
+      console.log(date);
     });
     cal.paint(
       {
@@ -127,7 +114,6 @@ const Heatmap = ({ commits, repoCreationDate, notesEnabled }) => {
   return (
     <>
       <div ref={heatmapRef} />
-      {showNotesModal && <NotesModal commitsForDay={selectedDayCommits} onClose={() => setShowNotesModal(false)} />}
     </>
   );
 };
