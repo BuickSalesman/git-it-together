@@ -52,7 +52,8 @@ const Heatmap = ({ commits, repoCreationDate, notesEnabled }) => {
 
     const cal = new CalHeatmap();
     cal.on("click", (event, date) => {
-      console.log(date);
+      const dateObj = new Date(date);
+      console.log(dateObj);
     });
     cal.paint(
       {
