@@ -51,7 +51,7 @@ const Heatmap = ({ commits, repoCreationDate, notesEnabled }) => {
     const maxDailyCommits = Math.max(...Object.values(dailyCounts), 0);
 
     const cal = new CalHeatmap();
-    cal.on("click", (date) => {
+    cal.on("click", (event, date) => {
       console.log(date);
     });
     cal.paint(
