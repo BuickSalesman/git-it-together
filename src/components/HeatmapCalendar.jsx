@@ -3,7 +3,7 @@ import "cal-heatmap/cal-heatmap.css";
 import { useState, useEffect, useRef } from "react";
 import "./HeatmapCalendar.css";
 import Tooltip from "cal-heatmap/plugins/Tooltip";
-// import NotesModal from "./CommitNotesModal";
+import NotesModal from "./CommitNotesModal";
 
 const Heatmap = ({ commits, repoCreationDate, notesEnabled }) => {
   const heatmapRef = useRef(null);
@@ -115,6 +115,7 @@ const Heatmap = ({ commits, repoCreationDate, notesEnabled }) => {
   return (
     <>
       <div ref={heatmapRef} />
+      <NotesModal />
     </>
   );
 };

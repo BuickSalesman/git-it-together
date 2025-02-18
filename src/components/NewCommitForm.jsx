@@ -62,7 +62,6 @@ export function NewCommitForm({ repoName, onClose, onCommitCreated }) {
         </div>
 
         <button type="submit">Add Commit</button>
-        {/* Cancel Button */}
         <button
           type="button"
           onClick={() => {
