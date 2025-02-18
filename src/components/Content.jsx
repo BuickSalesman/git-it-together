@@ -31,6 +31,8 @@ export function Content() {
 
         const fetchedCommits = commitsResponse.data.user_commits || [];
         setAllUserCommits(fetchedCommits);
+        const sortedCommits = fetchedCommits.sort((a, b) => b.id - a.id);
+        console.log(sortedCommits);
       } catch (error) {
         console.log("Error fetching repos or commits", error);
       }
