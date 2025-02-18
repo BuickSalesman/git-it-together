@@ -8,7 +8,7 @@ import NotesModal from "./CommitNotesModal";
 const Heatmap = ({ commits, repoCreationDate, notesEnabled }) => {
   const heatmapRef = useRef(null);
 
-  // const [showNotesModal, setShowNotesModal] = useState(false);
+  const [showNotesModal, setShowNotesModal] = useState(false);
 
   useEffect(() => {
     if (!heatmapRef.current) return;
@@ -54,6 +54,7 @@ const Heatmap = ({ commits, repoCreationDate, notesEnabled }) => {
     cal.on("click", (event, date) => {
       const dateObj = new Date(date);
       console.log(dateObj);
+      setShowNotesModal(true);
     });
     cal.paint(
       {
@@ -115,7 +116,7 @@ const Heatmap = ({ commits, repoCreationDate, notesEnabled }) => {
   return (
     <>
       <div ref={heatmapRef} />
-      <NotesModal />
+      {showNotesModal && <NotesModal />}
     </>
   );
 };
