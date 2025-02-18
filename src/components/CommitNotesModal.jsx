@@ -1,3 +1,8 @@
 export default function NotesModal() {
-  return <div>hello world</div>;
+  return (
+    <div>
+      hello world
+      <button>&times;</button>
+    </div>
+  );
 }
