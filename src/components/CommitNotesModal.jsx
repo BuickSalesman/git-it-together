@@ -1,8 +1,8 @@
-export default function NotesModal() {
+export default function NotesModal({ onClose }) {
   return (
     <div>
-      hello world
-      <button>&times;</button>
+      <div>hello world</div>
+      <button onClick={onClose}>&times;</button>
     </div>
   );
 }
