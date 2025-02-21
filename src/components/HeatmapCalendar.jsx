@@ -1,14 +1,13 @@
+import { useState, useEffect, useRef } from "react";
 import CalHeatmap from "cal-heatmap";
 import "cal-heatmap/cal-heatmap.css";
-import { useState, useEffect, useRef } from "react";
 import "./HeatmapCalendar.css";
 import Tooltip from "cal-heatmap/plugins/Tooltip";
 import NotesModal from "./CommitNotesModal";
-import timezoneHelper from "../lib/timezoneHelper";
+import dayjs from "dayjs";
 
 const Heatmap = ({ commits, repoCreationDate, notesEnabled }) => {
   const heatmapRef = useRef(null);
-
   const [showNotesModal, setShowNotesModal] = useState(false);
 
   useEffect(() => {
@@ -21,41 +20,31 @@ const Heatmap = ({ commits, repoCreationDate, notesEnabled }) => {
       },
     };
 
-    const creationDate = new Date(repoCreationDate);
-    const startDate = new Date(creationDate);
-    startDate.setFullYear(startDate.getFullYear() - 1);
-    startDate.setHours(0, 0, 0, 0); //smelly
+    const creationDate = dayjs(repoCreationDate).startOf("day");
+    const startDate = creationDate.subtract(1, "year").startOf("day");
 
-    const today = new Date();
-    today.setHours(0, 0, 0, 0); //smelly
+    const today = dayjs().startOf("day");
 
-    const maxDate = new Date(today);
-
-    const monthsDiff = timezoneHelper.getMonthsDiff(startDate, maxDate); //smelly
+    const endOfThisMonth = dayjs().endOf("month");
 
     const dailyCounts = commits.reduce((acc, commit) => {
-      const dt = timezoneHelper.parseTimestamp(commit.created_at);
-
-      dt.setHours(0, 0, 0, 0);
-
-      const localDayStr = timezoneHelper.formatLocalYYYYMMDD(dt);
-
-      acc[localDayStr] = (acc[localDayStr] || 0) + 1;
+      const dayStr = dayjs(commit.created_at).startOf("day").format("YYYY-MM-DD");
+      acc[dayStr] = (acc[dayStr] || 0) + 1;
       return acc;
     }, {});
 
-    const chartData = Object.entries(dailyCounts).map(([localDayStr, count]) => {
-      const dayDate = timezoneHelper.parseLocalMidnight(localDayStr);
-      return { date: dayDate, value: count };
-    });
+    const chartData = Object.entries(dailyCounts).map(([dayStr, count]) => ({
+      date: dayjs(dayStr).toDate(),
+      value: count,
+    }));
+
+    const monthsDiff = endOfThisMonth.diff(startDate, "month") + 1;
 
     const maxDailyCommits = Math.max(...Object.values(dailyCounts), 0);
 
     const cal = new CalHeatmap();
     cal.on("click", (event, date) => {
-      const dateObj = new Date(date);
-      console.log(dateObj);
-
+      console.log(date);
       setShowNotesModal(true);
     });
     cal.paint(
@@ -77,12 +66,12 @@ const Heatmap = ({ commits, repoCreationDate, notesEnabled }) => {
           width: 20,
           height: 20,
           showOutOfDomain: true,
-          exclude: (date) => date > today,
+          exclude: (date) => dayjs(date).isAfter(today, "day"),
         },
         date: {
-          start: startDate,
-          min: startDate,
-          max: maxDate,
+          start: startDate.toDate(),
+          min: startDate.toDate(),
+          max: endOfThisMonth.toDate(),
         },
         data: {
           source: chartData,

@@ -1,6 +1,7 @@
 import "./RepoCard.css";
 import NewCommitButton from "./NewCommitButton";
 import Heatmap from "./HeatmapCalendar";
+import dayjs from "dayjs";
 
 import { DeleteRepoModal } from "./DeleteRepoModal";
 import { useState } from "react";
@@ -8,15 +9,13 @@ import { useState } from "react";
 function getLongestStreak(commitDates) {
   if (commitDates.length === 0) return 0;
 
-  const dates = commitDates.map((dateStr) => new Date(dateStr + "T00:00:00")).sort((a, b) => a - b);
+  const dates = commitDates.map((dateStr) => dayjs(dateStr)).sort((a, b) => a.valueOf() - b.valueOf());
 
   let longestStreak = 1;
   let currentStreak = 1;
 
   for (let i = 1; i < dates.length; i++) {
-    const diffInMonths = dates[i] - dates[i - 1];
-    const diffInDays = diffInMonths / (1000 * 60 * 60 * 24);
-
+    const diffInDays = dates[i].diff(dates[i - 1], "day");
     if (diffInDays === 1) {
       currentStreak++;
     } else {
@@ -25,8 +24,7 @@ function getLongestStreak(commitDates) {
     }
   }
 
-  longestStreak = Math.max(longestStreak, currentStreak);
-  return longestStreak;
+  return Math.max(longestStreak, currentStreak);
 }
 
 const handleNewCommit = (createdCommitData) => {
