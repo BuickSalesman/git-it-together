@@ -116,7 +116,7 @@ const Heatmap = ({ commits, repoCreationDate, notesEnabled }) => {
   return (
     <>
       <div ref={heatmapRef} />
-      {showNotesModal && <NotesModal onClose={() => setShowNotesModal(false)} />}
+      {showNotesModal && <NotesModal onClose={() => setShowNotesModal(false)} commits={commits} />}
     </>
   );
 };
