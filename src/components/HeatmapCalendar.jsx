@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from "react";
 import "./HeatmapCalendar.css";
 import Tooltip from "cal-heatmap/plugins/Tooltip";
 import NotesModal from "./CommitNotesModal";
+import timezoneHelper from "../lib/timezoneHelper";
 
 const Heatmap = ({ commits, repoCreationDate, notesEnabled }) => {
   const heatmapRef = useRef(null);
@@ -23,28 +24,28 @@ const Heatmap = ({ commits, repoCreationDate, notesEnabled }) => {
     const creationDate = new Date(repoCreationDate);
     const startDate = new Date(creationDate);
     startDate.setFullYear(startDate.getFullYear() - 1);
-    startDate.setHours(0, 0, 0, 0);
+    startDate.setHours(0, 0, 0, 0); //smelly
 
     const today = new Date();
-    today.setHours(0, 0, 0, 0);
+    today.setHours(0, 0, 0, 0); //smelly
 
     const maxDate = new Date(today);
 
-    const monthsDiff = getMonthsDiff(startDate, maxDate);
+    const monthsDiff = timezoneHelper.getMonthsDiff(startDate, maxDate); //smelly
 
     const dailyCounts = commits.reduce((acc, commit) => {
-      const dt = parseTimestamp(commit.created_at);
+      const dt = timezoneHelper.parseTimestamp(commit.created_at);
 
       dt.setHours(0, 0, 0, 0);
 
-      const localDayStr = formatLocalYYYYMMDD(dt);
+      const localDayStr = timezoneHelper.formatLocalYYYYMMDD(dt);
 
       acc[localDayStr] = (acc[localDayStr] || 0) + 1;
       return acc;
     }, {});
 
     const chartData = Object.entries(dailyCounts).map(([localDayStr, count]) => {
-      const dayDate = parseLocalMidnight(localDayStr);
+      const dayDate = timezoneHelper.parseLocalMidnight(localDayStr);
       return { date: dayDate, value: count };
     });
 
@@ -54,6 +55,7 @@ const Heatmap = ({ commits, repoCreationDate, notesEnabled }) => {
     cal.on("click", (event, date) => {
       const dateObj = new Date(date);
       console.log(dateObj);
+
       setShowNotesModal(true);
     });
     cal.paint(
@@ -122,24 +124,3 @@ const Heatmap = ({ commits, repoCreationDate, notesEnabled }) => {
 };
 
 export default Heatmap;
-
-function parseTimestamp(tsString) {
-  const iso = tsString.replace(" ", "T");
-  return new Date(iso);
-}
-
-function parseLocalMidnight(dayStr) {
-  const [y, m, d] = dayStr.split("-").map(Number);
-  return new Date(y, m - 1, d, 0, 0, 0, 0);
-}
-
-function formatLocalYYYYMMDD(dt) {
-  const y = dt.getFullYear();
-  const m = String(dt.getMonth() + 1).padStart(2, "0");
-  const d = String(dt.getDate()).padStart(2, "0");
-  return `${y}-${m}-${d}`;
-}
-
-function getMonthsDiff(startDate, endDate) {
-  return (endDate.getFullYear() - startDate.getFullYear()) * 12 + (endDate.getMonth() - startDate.getMonth()) + 1;
-}

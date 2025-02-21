@@ -29,6 +29,11 @@ export function Content() {
           },
         });
 
+        const userTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+        console.log("User's Timezone:", userTimeZone);
+
+        console.log(commitsResponse);
+
         const fetchedCommits = commitsResponse.data.user_commits || [];
         setAllUserCommits(fetchedCommits);
         const sortedCommits = fetchedCommits.sort((a, b) => b.id - a.id);
