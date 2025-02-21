@@ -1,7 +1,9 @@
+import "./CommitNotesModal.css";
+
 export default function NotesModal({ onClose, commits }) {
   return (
-    <div>
-      <div>
+    <div className="commits-modal-backdrop">
+      <div className="commits-modal-content">
         {commits.map((commit) => (
           <div key={commit.id}>
             <h4>{commit.note_title}</h4>
@@ -10,7 +12,9 @@ export default function NotesModal({ onClose, commits }) {
           </div>
         ))}
       </div>
-      <button onClick={onClose}>&times;</button>
+      <button className="commit-modal-close-button" onClick={onClose}>
+        &times;
+      </button>
     </div>
   );
 }
