@@ -3,31 +3,22 @@ import CalHeatmap from "cal-heatmap";
 import "cal-heatmap/cal-heatmap.css";
 import "./HeatmapCalendar.css";
 import Tooltip from "cal-heatmap/plugins/Tooltip";
-import NotesModal from "./CommitNotesModal";
 import dayjs from "dayjs";
+import NotesModal from "./CommitNotesModal";
 
-const Heatmap = ({ commits, repoCreationDate, notesEnabled }) => {
+function getStdTimezoneOffset(date = new Date()) {
+  const jan = new Date(date.getFullYear(), 0, 1);
+  const jul = new Date(date.getFullYear(), 6, 1);
+  return Math.max(jan.getTimezoneOffset(), jul.getTimezoneOffset());
+}
+
+export default function Heatmap({ commits, repoCreationDate }) {
   const heatmapRef = useRef(null);
-
   const [showNotesModal, setShowNotesModal] = useState(false);
   const [clickedDateCommits, setClickedDateCommits] = useState([]);
 
   useEffect(() => {
     if (!heatmapRef.current) return;
-
-    const TOOLTIP_OPTIONS = {
-      enabled: true,
-      text: (timestamp, value, dayjsDate) => {
-        return `${value ?? 0} commits on ${dayjsDate.format("YYYY-MM-DD")}`;
-      },
-    };
-
-    const creationDate = dayjs(repoCreationDate).startOf("day");
-    const startDate = creationDate.subtract(1, "year").startOf("day");
-
-    const endOfThisMonth = dayjs().endOf("month");
-
-    const monthsDiff = endOfThisMonth.diff(startDate, "month") + 1;
 
     const dailyCounts = commits.reduce((acc, commit) => {
       const localDayStr = dayjs(commit.created_at).startOf("day").format("YYYY-MM-DD");
@@ -40,20 +31,26 @@ const Heatmap = ({ commits, repoCreationDate, notesEnabled }) => {
       value: count,
     }));
 
+    const creationDate = dayjs(repoCreationDate).startOf("day");
+    const startDate = creationDate.subtract(1, "year").startOf("day");
+    const endOfThisMonth = dayjs().endOf("month");
+    const monthsDiff = endOfThisMonth.diff(startDate, "month") + 1;
     const maxDailyCommits = Math.max(...Object.values(dailyCounts), 0);
+    const offsetInMs = getStdTimezoneOffset() * 60 * 1000;
 
     const cal = new CalHeatmap();
 
-    cal.on("click", (event, clickedDate) => {
-      const clickedDayStr = dayjs(clickedDate).startOf("day").format("YYYY-MM-DD");
-
-      const matchingCommits = commits.filter((c) => {
-        const commitDay = dayjs(c.created_at).startOf("day").format("YYYY-MM-DD");
-        return commitDay === clickedDayStr;
-      });
-
-      setClickedDateCommits(matchingCommits);
-      setShowNotesModal(true);
+    cal.on("click", (evt, timestampMs) => {
+      if (typeof timestampMs === "number") {
+        const localMidnightMs = timestampMs + offsetInMs;
+        const clickedDayStr = dayjs(localMidnightMs).startOf("day").format("YYYY-MM-DD");
+        const matchingCommits = commits.filter((c) => {
+          const cDayStr = dayjs(c.created_at).startOf("day").format("YYYY-MM-DD");
+          return cDayStr === clickedDayStr;
+        });
+        setClickedDateCommits(matchingCommits);
+        setShowNotesModal(true);
+      }
     });
 
     cal.paint(
@@ -88,6 +85,16 @@ const Heatmap = ({ commits, repoCreationDate, notesEnabled }) => {
           x: "date",
           y: "value",
           aggregator: "sum",
+          afterLoadData(dataArray) {
+            const results = {};
+            dataArray.forEach(({ date, value }) => {
+              const ms = date.getTime();
+              const shiftedMs = ms - offsetInMs;
+              const shiftedSec = Math.floor(shiftedMs / 1000);
+              results[shiftedSec] = value;
+            });
+            return results;
+          },
         },
         scale: {
           color: {
@@ -97,14 +104,22 @@ const Heatmap = ({ commits, repoCreationDate, notesEnabled }) => {
           },
         },
       },
-      [[Tooltip, TOOLTIP_OPTIONS]]
+      [
+        [
+          Tooltip,
+          {
+            enabled: true,
+            text: (tsOrMs, value, dayjsDate) => {
+              return `${value ?? 0} commits on ${dayjsDate.format("YYYY-MM-DD")}`;
+            },
+          },
+        ],
+      ]
     );
 
     setTimeout(() => {
       const container = heatmapRef.current?.parentNode;
-      if (container) {
-        container.scrollLeft = container.scrollWidth;
-      }
+      if (container) container.scrollLeft = container.scrollWidth;
     }, 0);
 
     return () => cal.destroy();
@@ -113,9 +128,7 @@ const Heatmap = ({ commits, repoCreationDate, notesEnabled }) => {
   return (
     <>
       <div ref={heatmapRef} />
-      {showNotesModal && <NotesModal onClose={() => setShowNotesModal(false)} commits={clickedDateCommits} />}
+      {showNotesModal && <NotesModal commits={clickedDateCommits} onClose={() => setShowNotesModal(false)} />}
     </>
   );
-};
-
-export default Heatmap;
+}
