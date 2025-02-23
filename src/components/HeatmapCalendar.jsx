@@ -8,7 +8,9 @@ import dayjs from "dayjs";
 
 const Heatmap = ({ commits, repoCreationDate, notesEnabled }) => {
   const heatmapRef = useRef(null);
+
   const [showNotesModal, setShowNotesModal] = useState(false);
+  const [clickedDateCommits, setClickedDateCommits] = useState([]);
 
   useEffect(() => {
     if (!heatmapRef.current) return;
@@ -23,13 +25,13 @@ const Heatmap = ({ commits, repoCreationDate, notesEnabled }) => {
     const creationDate = dayjs(repoCreationDate).startOf("day");
     const startDate = creationDate.subtract(1, "year").startOf("day");
 
-    const today = dayjs().startOf("day");
-
     const endOfThisMonth = dayjs().endOf("month");
 
+    const monthsDiff = endOfThisMonth.diff(startDate, "month") + 1;
+
     const dailyCounts = commits.reduce((acc, commit) => {
-      const dayStr = dayjs(commit.created_at).startOf("day").format("YYYY-MM-DD");
-      acc[dayStr] = (acc[dayStr] || 0) + 1;
+      const localDayStr = dayjs(commit.created_at).startOf("day").format("YYYY-MM-DD");
+      acc[localDayStr] = (acc[localDayStr] || 0) + 1;
       return acc;
     }, {});
 
@@ -38,15 +40,22 @@ const Heatmap = ({ commits, repoCreationDate, notesEnabled }) => {
       value: count,
     }));
 
-    const monthsDiff = endOfThisMonth.diff(startDate, "month") + 1;
-
     const maxDailyCommits = Math.max(...Object.values(dailyCounts), 0);
 
     const cal = new CalHeatmap();
-    cal.on("click", (event, date) => {
-      console.log(date);
+
+    cal.on("click", (event, clickedDate) => {
+      const clickedDayStr = dayjs(clickedDate).startOf("day").format("YYYY-MM-DD");
+
+      const matchingCommits = commits.filter((c) => {
+        const commitDay = dayjs(c.created_at).startOf("day").format("YYYY-MM-DD");
+        return commitDay === clickedDayStr;
+      });
+
+      setClickedDateCommits(matchingCommits);
       setShowNotesModal(true);
     });
+
     cal.paint(
       {
         itemSelector: heatmapRef.current,
@@ -66,7 +75,7 @@ const Heatmap = ({ commits, repoCreationDate, notesEnabled }) => {
           width: 20,
           height: 20,
           showOutOfDomain: true,
-          exclude: (date) => dayjs(date).isAfter(today, "day"),
+          exclude: (date) => dayjs(date).isAfter(endOfThisMonth, "day"),
         },
         date: {
           start: startDate.toDate(),
@@ -101,13 +110,10 @@ const Heatmap = ({ commits, repoCreationDate, notesEnabled }) => {
     return () => cal.destroy();
   }, [commits, repoCreationDate]);
 
-  if (!commits || commits.length === 0) {
-    return null;
-  }
   return (
     <>
       <div ref={heatmapRef} />
-      {showNotesModal && <NotesModal onClose={() => setShowNotesModal(false)} commits={commits} />}
+      {showNotesModal && <NotesModal onClose={() => setShowNotesModal(false)} commits={clickedDateCommits} />}
     </>
   );
 };
