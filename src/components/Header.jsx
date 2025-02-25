@@ -5,7 +5,7 @@ import { LogoutLink } from "./LogoutLink";
 import { useState, useRef } from "react";
 import "./Header.css";
 
-export function Header() {
+export function Header({ repos, commits }) {
   const accessToken = localStorage.getItem("accessToken");
 
   const [bgCoords, setBgCoords] = useState({ width: 0, height: 0, top: 0, left: 0 });
