@@ -67,7 +67,7 @@ export default function Heatmap({ commits, repoCreationDate }) {
         },
         subDomain: {
           type: "ghDay",
-          label: "MM-DD",
+          label: null,
           radius: 5,
           width: 20,
           height: 20,
