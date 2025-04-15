@@ -7,8 +7,8 @@ import dayjs from "dayjs";
 import NotesModal from "./CommitNotesModal";
 
 function getStdTimezoneOffset(date = new Date()) {
-  const jan = new Date(date.getFullYear(), 0, 1);
-  const jul = new Date(date.getFullYear(), 6, 1);
+  const jan = new Date(date.getFullYear(), 0, 1); // 0, 1 means jan first
+  const jul = new Date(date.getFullYear(), 6, 1); // 6, 1 means july first
   return Math.max(jan.getTimezoneOffset(), jul.getTimezoneOffset());
 }
 
@@ -31,8 +31,8 @@ export default function Heatmap({ commits, repoCreationDate }) {
       value: count,
     }));
 
-    const creationDate = dayjs(repoCreationDate).startOf("day");
-    const startDate = creationDate.subtract(1, "year").startOf("day");
+    const creationDate = dayjs(repoCreationDate).startOf("month");
+    const startDate = creationDate.subtract(1, "year").startOf("month");
     const endOfThisMonth = dayjs().endOf("month");
     const monthsDiff = endOfThisMonth.diff(startDate, "month") + 1;
     const maxDailyCommits = Math.max(...Object.values(dailyCounts), 0);
