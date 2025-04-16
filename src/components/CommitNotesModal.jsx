@@ -1,13 +1,15 @@
 import "./CommitNotesModal.css";
 import dayjs from "dayjs";
 
-export default function NotesModal({ onClose, commits }) {
+export default function NotesModal({ clickedDate, onClose, commits }) {
   let commitCount = commits.length;
 
   return (
     <div className="commits-modal-backdrop">
       <div className="commits-modal-content">
-        <div>{commitCount} commit(s) on this day!</div>
+        <div>
+          {commitCount} commit(s) on {clickedDate} !
+        </div>
         {commits.map((commit) => {
           const localTime = dayjs(commit.created_at).format("YYYY-MM-DD h:mm A");
           return (

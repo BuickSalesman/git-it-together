@@ -15,6 +15,7 @@ function getStdTimezoneOffset(date = new Date()) {
 export default function Heatmap({ commits, repoCreationDate }) {
   const heatmapRef = useRef(null);
   const [showNotesModal, setShowNotesModal] = useState(false);
+  const [clickedDate, setClickedDate] = useState("");
   const [clickedDateCommits, setClickedDateCommits] = useState([]);
 
   useEffect(() => {
@@ -48,6 +49,7 @@ export default function Heatmap({ commits, repoCreationDate }) {
           const cDayStr = dayjs(c.created_at).startOf("day").format("YYYY-MM-DD");
           return cDayStr === clickedDayStr;
         });
+        setClickedDate(clickedDayStr);
         setClickedDateCommits(matchingCommits);
         setShowNotesModal(true);
       }
@@ -128,7 +130,9 @@ export default function Heatmap({ commits, repoCreationDate }) {
   return (
     <>
       <div ref={heatmapRef} />
-      {showNotesModal && <NotesModal commits={clickedDateCommits} onClose={() => setShowNotesModal(false)} />}
+      {showNotesModal && (
+        <NotesModal commits={clickedDateCommits} clickedDate={clickedDate} onClose={() => setShowNotesModal(false)} />
+      )}
     </>
   );
 }
