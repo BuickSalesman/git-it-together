@@ -9,6 +9,7 @@ function App() {
 
   const [allUserRepos, setAllUserRepos] = useState([]);
   const [allUserCommits, setAllUserCommits] = useState([]);
+  const [username, setUsername] = useState("");
 
   useEffect(() => {
     const fetchRepoAndCommitData = async () => {
@@ -36,13 +37,29 @@ function App() {
       }
     };
 
+    const fetchUserName = async () => {
+      try {
+        const usernameResponse = await axios.get("http://localhost:8000/users/me", {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+        });
+
+        const username = usernameResponse.data.user.username || "";
+        setUsername(username);
+      } catch (error) {
+        console.log("Error doing the do");
+      }
+    };
+
+    fetchUserName();
     fetchRepoAndCommitData();
   }, []);
 
   return (
     <div>
       <BrowserRouter>
-        <Header accessToken={accessToken} repos={allUserRepos} commits={allUserCommits} />
+        <Header username={username} accessToken={accessToken} repos={allUserRepos} commits={allUserCommits} />
         <Content accessToken={accessToken} repos={allUserRepos} commits={allUserCommits} />
       </BrowserRouter>
     </div>
