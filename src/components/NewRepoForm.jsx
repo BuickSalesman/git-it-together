@@ -2,7 +2,7 @@ import { useState } from "react";
 
 import axios from "axios";
 
-export function NewRepoForm() {
+export function NewRepoForm({ onClose }) {
   const [errors, setErrors] = useState([]);
 
   const handleSubmit = (event) => {
@@ -38,6 +38,7 @@ export function NewRepoForm() {
           ))}
         </ul>
       )}
+
       <form onSubmit={handleSubmit} id="new-repo-form">
         <div>
           Name: <input type="text" name="name" />
@@ -48,6 +49,9 @@ export function NewRepoForm() {
           <input type="checkbox" name="notes_enabled" value="true" />
         </div>
         <button type="submit">Submit</button>
+        <button className="close" onClick={onClose}>
+          &times;
+        </button>
       </form>
     </div>
   );
