@@ -5,9 +5,7 @@ import { LogoutLink } from "./LogoutLink";
 import { useState, useRef } from "react";
 import "./Header.css";
 
-export function Header({ repos, commits }) {
-  const accessToken = localStorage.getItem("accessToken");
-
+export function Header({ accessToken, repos, commits }) {
   const [bgCoords, setBgCoords] = useState({ width: 0, height: 0, top: 0, left: 0 });
   const [isOpen, setIsOpen] = useState(false);
 
@@ -35,13 +33,11 @@ export function Header({ repos, commits }) {
   return (
     <header className="header">
       <nav className="navbar">
-        <div className={`dropdownBackground ${isOpen ? "open" : ""}`} style={backgroundStyle} ref={backgroundRef}>
-          <span className="arrow"></span>
-        </div>
+        <div className={`dropdownBackground ${isOpen ? "open" : ""}`} style={backgroundStyle} ref={backgroundRef}></div>
 
-        <div className="nav-left">username</div>
+        <div className="nav-left">{accessToken ? <>username</> : <>git it together</>}</div>
 
-        <div className="nav-center">searchbar</div>
+        <div className="nav-center">{accessToken ? <>searchbar</> : <></>}</div>
 
         <div className="nav-right">
           {accessToken ? (

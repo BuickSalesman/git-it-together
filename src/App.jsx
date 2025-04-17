@@ -5,6 +5,8 @@ import { BrowserRouter } from "react-router-dom";
 import axios from "axios";
 
 function App() {
+  const accessToken = localStorage.getItem("accessToken");
+
   const [allUserRepos, setAllUserRepos] = useState([]);
   const [allUserCommits, setAllUserCommits] = useState([]);
 
@@ -42,8 +44,8 @@ function App() {
   return (
     <div>
       <BrowserRouter>
-        <Header repos={allUserRepos} commits={allUserCommits} />
-        <Content repos={allUserRepos} commits={allUserCommits} />
+        <Header accessToken={accessToken} repos={allUserRepos} commits={allUserCommits} />
+        <Content accessToken={accessToken} repos={allUserRepos} commits={allUserCommits} />
       </BrowserRouter>
     </div>
   );

@@ -8,7 +8,7 @@ export default function NotesModal({ clickedDate, onClose, commits }) {
     <div className="commits-modal-backdrop">
       <div className="commits-modal-content">
         <div>
-          {commitCount} commit(s) on {clickedDate} !
+          {commitCount} commit(s) on {clickedDate}!
         </div>
         {commits.map((commit) => {
           const localTime = dayjs(commit.created_at).format("YYYY-MM-DD h:mm A");

@@ -2,7 +2,7 @@ import { RepoCard } from "./RepoCard";
 import { NewRepoContainer } from "./NewRepoContainer";
 import "./Content.css";
 
-export function Content({ repos, commits }) {
+export function Content({ accessToken, repos, commits }) {
   return (
     <div className="content">
       <div className="repo-container">
