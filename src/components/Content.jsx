@@ -11,7 +11,7 @@ export function Content({ accessToken, repos, commits }) {
 
           return <RepoCard key={repo.id} repo={repo} commits={repoCommits} />;
         })}
-        <NewRepoContainer />
+        <NewRepoContainer accessToken={accessToken} />
       </div>
     </div>
   );

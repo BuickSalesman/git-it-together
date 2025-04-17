@@ -13,8 +13,6 @@ function App() {
   useEffect(() => {
     const fetchRepoAndCommitData = async () => {
       try {
-        const accessToken = localStorage.getItem("accessToken");
-
         const reposResponse = await axios.get("http://localhost:8000/repos/", {
           headers: {
             Authorization: `Bearer ${accessToken}`,

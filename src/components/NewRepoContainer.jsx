@@ -2,7 +2,7 @@ import { useState } from "react";
 import { NewRepoButton } from "./NewRepoButton";
 import { NewRepoModal } from "./NewRepoModal";
 
-export function NewRepoContainer() {
+export function NewRepoContainer({ accessToken }) {
   const [showModal, setShowModal] = useState(false);
 
   const handleOpenModal = () => {
@@ -15,7 +15,7 @@ export function NewRepoContainer() {
 
   return (
     <div>
-      {!showModal && <NewRepoButton onClick={handleOpenModal} />}
+      {!showModal && <NewRepoButton accessToken={accessToken} onClick={handleOpenModal} />}
 
       {showModal && <NewRepoModal onClose={handleCloseModal} />}
     </div>
