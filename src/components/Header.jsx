@@ -42,7 +42,6 @@ export function Header({ accessToken, repos, commits }) {
         <div className="nav-right">
           {accessToken ? (
             <>
-              <Link to="/">Home</Link>
               <LogoutLink />
             </>
           ) : (

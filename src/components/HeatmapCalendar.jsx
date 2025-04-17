@@ -119,12 +119,33 @@ export default function Heatmap({ commits, repoCreationDate }) {
       ]
     );
 
-    setTimeout(() => {
-      const container = heatmapRef.current?.parentNode;
-      if (container) container.scrollLeft = container.scrollWidth;
-    }, 0);
+    const container = heatmapRef.current?.parentNode;
+    let userScrolled = false;
 
-    return () => cal.destroy();
+    const scrollToRight = () => {
+      if (!container || userScrolled) return;
+      container.scrollLeft = container.scrollWidth;
+    };
+
+    setTimeout(scrollToRight, 0);
+
+    const onScroll = () => {
+      if (!container) return; // probably dont need this check but here just in case
+      const nearRight = container.scrollWidth - container.scrollLeft - container.clientWidth < 20;
+      userScrolled = !nearRight;
+    };
+
+    container?.addEventListener("scroll", onScroll);
+
+    const onFocus = () => {
+      scrollToRight();
+    };
+
+    return () => {
+      cal.destroy();
+      container?.removeEventListener("scroll", onScroll);
+      window.removeEventListener("focus", onFocus);
+    };
   }, [commits, repoCreationDate]);
 
   return (
