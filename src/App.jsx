@@ -56,8 +56,6 @@ function App() {
 
     fetchUserName();
     fetchRepoAndCommitData();
-
-    console.log("API URL being used:", import.meta.env.VITE_API_URL);
   }, []);
 
   return (
