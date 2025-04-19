@@ -1,7 +1,7 @@
 import { useState, useRef } from "react";
 import axios from "axios";
 
-export function LoginDropdown({ onHover, onLeave }) {
+export function LoginDropdown({ API_URL, onHover, onLeave }) {
   const [show, setShow] = useState(false);
   const [errors, setErrors] = useState([]);
   const contentRef = useRef();
@@ -17,7 +17,7 @@ export function LoginDropdown({ onHover, onLeave }) {
 
     const params = new FormData(event.target);
     axios
-      .post("http://localhost:8000/auth/token/", params)
+      .post(`${API_URL}auth/token/`, params)
       .then((response) => {
         const accessToken = response.data.access;
         axios.defaults.headers.common["Authorization"] = `Bearer ${accessToken}`;

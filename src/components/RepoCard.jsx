@@ -31,7 +31,7 @@ const handleNewCommit = (createdCommitData) => {
   console.log("New commit created:", createdCommitData);
 };
 
-export function RepoCard({ repo, commits }) {
+export function RepoCard({ API_URL, repo, commits }) {
   const [showModal, setShowModal] = useState(false);
 
   const totalCommits = commits.length;
@@ -42,7 +42,12 @@ export function RepoCard({ repo, commits }) {
   return (
     <div className="repo-card">
       <div className="username-and-delete-container">
-        <NewCommitButton repoName={repo.name} notesEnabled={repo.notes_enabled} onCommitCreated={handleNewCommit} />
+        <NewCommitButton
+          API_URL={API_URL}
+          repoName={repo.name}
+          notesEnabled={repo.notes_enabled}
+          onCommitCreated={handleNewCommit}
+        />
         <h3>{repo.name}</h3>
         <button className="delete-button" onClick={() => setShowModal(true)}>
           &times;
@@ -56,7 +61,7 @@ export function RepoCard({ repo, commits }) {
       <div className="last-updated">Last commit: {new Date(repo.updated_at).toLocaleString()}</div>
       <div className="last-updated">created on: {new Date(repo.created_at).toLocaleString()}</div>
 
-      {showModal && <DeleteRepoModal onClose={() => setShowModal(false)} repoName={repo.name} />}
+      {showModal && <DeleteRepoModal API_URL={API_URL} onClose={() => setShowModal(false)} repoName={repo.name} />}
     </div>
   );
 }

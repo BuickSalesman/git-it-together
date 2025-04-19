@@ -3,7 +3,7 @@
 import { NewCommitForm } from "./NewCommitForm";
 import "./NewCommitModal.css";
 
-export function NewCommitModal({ onClose, repoName, onCommitCreated }) {
+export function NewCommitModal({ API_URL, onClose, repoName, onCommitCreated }) {
   const handleBackdropClick = (event) => {
     if (event.target.classList.contains("modal-backdrop")) {
       onClose?.();
@@ -17,7 +17,7 @@ export function NewCommitModal({ onClose, repoName, onCommitCreated }) {
           &times;
         </button>
 
-        <NewCommitForm repoName={repoName} onClose={onClose} onCommitCreated={onCommitCreated} />
+        <NewCommitForm API_URL={API_URL} repoName={repoName} onClose={onClose} onCommitCreated={onCommitCreated} />
       </div>
     </div>
   );

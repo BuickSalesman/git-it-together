@@ -2,7 +2,7 @@ import { useState } from "react";
 import { NewRepoButton } from "./NewRepoButton";
 import { NewRepoModal } from "./NewRepoModal";
 
-export function NewRepoContainer({ accessToken }) {
+export function NewRepoContainer({ API_URL, accessToken }) {
   const [showModal, setShowModal] = useState(false);
 
   const handleOpenModal = () => {
@@ -17,7 +17,7 @@ export function NewRepoContainer({ accessToken }) {
     <div>
       {!showModal && <NewRepoButton accessToken={accessToken} onClick={handleOpenModal} />}
 
-      {showModal && <NewRepoModal onClose={handleCloseModal} />}
+      {showModal && <NewRepoModal onClose={handleCloseModal} API_URL={API_URL} />}
     </div>
   );
 }

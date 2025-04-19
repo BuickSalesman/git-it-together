@@ -2,7 +2,7 @@ import { useState } from "react";
 
 import axios from "axios";
 
-export function NewRepoForm({ onClose }) {
+export function NewRepoForm({ API_URL, onClose }) {
   const [errors, setErrors] = useState([]);
 
   const handleSubmit = (event) => {
@@ -12,7 +12,7 @@ export function NewRepoForm({ onClose }) {
     const params = new FormData(event.target);
 
     axios
-      .post("http://localhost:8000/repos/create/", params, {
+      .post(`${API_URL}repos/create/`, params, {
         headers: { Authorization: `Bearer ${localStorage.getItem("accessToken")}` },
       })
       .then((reponse) => {

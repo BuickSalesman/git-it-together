@@ -4,7 +4,7 @@ import { LogoutLink } from "./LogoutLink";
 import { useState, useRef } from "react";
 import "./Header.css";
 
-export function Header({ accessToken, username, repos, commits }) {
+export function Header({ API_URL, accessToken, username, repos, commits }) {
   const [bgCoords, setBgCoords] = useState({ width: 0, height: 0, top: 0, left: 0 });
   const [isOpen, setIsOpen] = useState(false);
 
@@ -53,6 +53,7 @@ export function Header({ accessToken, username, repos, commits }) {
                 onLeave={() => {
                   setIsOpen(false);
                 }}
+                API_URL={API_URL}
               />
               <LoginDropdown
                 onHover={(contentEl) => {
@@ -62,6 +63,7 @@ export function Header({ accessToken, username, repos, commits }) {
                 onLeave={() => {
                   setIsOpen(false);
                 }}
+                API_URL={API_URL}
               />
             </>
           )}

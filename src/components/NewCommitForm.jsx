@@ -2,7 +2,7 @@ import { useState } from "react";
 import axios from "axios";
 import "./NewCommitForm.css";
 
-export function NewCommitForm({ repoName, onClose, onCommitCreated }) {
+export function NewCommitForm({ API_URL, repoName, onClose, onCommitCreated }) {
   const [errors, setErrors] = useState([]);
   const [noteTitle, setNoteTitle] = useState("");
   const [noteBody, setNoteBody] = useState("");
@@ -14,7 +14,7 @@ export function NewCommitForm({ repoName, onClose, onCommitCreated }) {
     try {
       const accessToken = localStorage.getItem("accessToken");
       const response = await axios.post(
-        "http://localhost:8000/commits/create/",
+        `${API_URL}commits/create/`,
         {
           name: repoName,
           note_title: noteTitle,

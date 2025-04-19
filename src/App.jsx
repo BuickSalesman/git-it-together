@@ -4,6 +4,8 @@ import { Content } from "./components/Content";
 import { BrowserRouter } from "react-router-dom";
 import axios from "axios";
 
+const API_URL = import.meta.env.VITE_API_URL;
+
 function App() {
   const accessToken = localStorage.getItem("accessToken");
 
@@ -14,7 +16,7 @@ function App() {
   useEffect(() => {
     const fetchRepoAndCommitData = async () => {
       try {
-        const reposResponse = await axios.get("http://localhost:8000/repos/", {
+        const reposResponse = await axios.get(`${API_URL}/repos/`, {
           headers: {
             Authorization: `Bearer ${accessToken}`,
           },
@@ -24,7 +26,7 @@ function App() {
         fetchedRepos.sort((a, b) => new Date(b.updated_at) - new Date(a.updated_at));
         setAllUserRepos(fetchedRepos);
 
-        const commitsResponse = await axios.get("http://localhost:8000/commits/", {
+        const commitsResponse = await axios.get(`${API_URL}/commits/`, {
           headers: {
             Authorization: `Bearer ${accessToken}`,
           },
@@ -39,7 +41,7 @@ function App() {
 
     const fetchUserName = async () => {
       try {
-        const usernameResponse = await axios.get("http://localhost:8000/users/me", {
+        const usernameResponse = await axios.get(`${API_URL}/users/me`, {
           headers: {
             Authorization: `Bearer ${accessToken}`,
           },
@@ -48,7 +50,7 @@ function App() {
         const username = usernameResponse.data.user.username || "";
         setUsername(username);
       } catch (error) {
-        console.log("Error doing the do");
+        console.log("Error doing the do", error);
       }
     };
 
@@ -59,8 +61,14 @@ function App() {
   return (
     <div>
       <BrowserRouter>
-        <Header username={username} accessToken={accessToken} repos={allUserRepos} commits={allUserCommits} />
-        <Content accessToken={accessToken} repos={allUserRepos} commits={allUserCommits} />
+        <Header
+          API_URL={API_URL}
+          username={username}
+          accessToken={accessToken}
+          repos={allUserRepos}
+          commits={allUserCommits}
+        />
+        <Content API_URL={API_URL} accessToken={accessToken} repos={allUserRepos} commits={allUserCommits} />
       </BrowserRouter>
     </div>
   );

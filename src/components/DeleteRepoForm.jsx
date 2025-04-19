@@ -2,7 +2,7 @@ import { useState } from "react";
 import axios from "axios";
 import "./DeleteRepoForm.css";
 
-export function DeleteRepoForm({ repoName, onClose }) {
+export function DeleteRepoForm({ API_URL, repoName, onClose }) {
   const [typedName, setTypedName] = useState("");
   const [errors, setErrors] = useState([]);
 
@@ -11,7 +11,7 @@ export function DeleteRepoForm({ repoName, onClose }) {
     setErrors([]);
 
     axios
-      .delete("http://localhost:8000/repos/delete/", {
+      .delete(`${API_URL}repos/delete/`, {
         data: { name: typedName },
         headers: { Authorization: `Bearer ${localStorage.getItem("accessToken")}` },
       })

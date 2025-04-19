@@ -2,7 +2,7 @@ import { useState, useRef } from "react";
 
 import axios from "axios";
 
-export function SingupDropdown({ onHover, onLeave }) {
+export function SingupDropdown({ API_URL, onHover, onLeave }) {
   const [show, setShow] = useState(false);
   const [errors, setErrors] = useState([]);
   const contentRef = useRef();
@@ -21,7 +21,7 @@ export function SingupDropdown({ onHover, onLeave }) {
     }
 
     axios
-      .post("http://localhost:8000/users/create/", params)
+      .post(`${API_URL}/users/create/`, params)
       .then((response) => {
         console.log(response.data);
         event.target.reset();

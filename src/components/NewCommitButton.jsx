@@ -3,14 +3,14 @@ import axios from "axios";
 import { NewCommitModal } from "./NewCommitModal";
 import "./NewCommitButton.css";
 
-export default function NewCommitButton({ repoName, notesEnabled, onCommitCreated }) {
+export default function NewCommitButton({ API_URL, repoName, notesEnabled, onCommitCreated }) {
   const [showModal, setShowModal] = useState(false);
 
   const handleDirectCommit = async () => {
     try {
       const accessToken = localStorage.getItem("accessToken");
       const response = await axios.post(
-        "http://localhost:8000/commits/create/",
+        `${API_URL}commits/create/`,
         { name: repoName },
         {
           headers: {
@@ -53,7 +53,14 @@ export default function NewCommitButton({ repoName, notesEnabled, onCommitCreate
         Add Commit
       </button>
 
-      {showModal && <NewCommitModal onClose={handleCloseModal} repoName={repoName} onCommitCreated={onCommitCreated} />}
+      {showModal && (
+        <NewCommitModal
+          API_URL={API_URL}
+          onClose={handleCloseModal}
+          repoName={repoName}
+          onCommitCreated={onCommitCreated}
+        />
+      )}
     </>
   );
 }
