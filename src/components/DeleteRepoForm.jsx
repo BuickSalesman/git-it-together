@@ -11,7 +11,7 @@ export function DeleteRepoForm({ API_URL, repoName, onClose }) {
     setErrors([]);
 
     axios
-      .delete(`${API_URL}repos/delete/`, {
+      .delete(`${API_URL}/repos/delete/`, {
         data: { name: typedName },
         headers: { Authorization: `Bearer ${localStorage.getItem("accessToken")}` },
       })

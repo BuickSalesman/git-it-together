@@ -10,7 +10,7 @@ export default function NewCommitButton({ API_URL, repoName, notesEnabled, onCom
     try {
       const accessToken = localStorage.getItem("accessToken");
       const response = await axios.post(
-        `${API_URL}commits/create/`,
+        `${API_URL}/commits/create/`,
         { name: repoName },
         {
           headers: {

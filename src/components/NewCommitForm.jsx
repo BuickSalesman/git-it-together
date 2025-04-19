@@ -14,7 +14,7 @@ export function NewCommitForm({ API_URL, repoName, onClose, onCommitCreated }) {
     try {
       const accessToken = localStorage.getItem("accessToken");
       const response = await axios.post(
-        `${API_URL}commits/create/`,
+        `${API_URL}/commits/create/`,
         {
           name: repoName,
           note_title: noteTitle,

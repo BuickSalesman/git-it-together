@@ -12,7 +12,7 @@ export function NewRepoForm({ API_URL, onClose }) {
     const params = new FormData(event.target);
 
     axios
-      .post(`${API_URL}repos/create/`, params, {
+      .post(`${API_URL}/repos/create/`, params, {
         headers: { Authorization: `Bearer ${localStorage.getItem("accessToken")}` },
       })
       .then((reponse) => {

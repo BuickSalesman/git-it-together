@@ -17,7 +17,7 @@ export function LoginDropdown({ API_URL, onHover, onLeave }) {
 
     const params = new FormData(event.target);
     axios
-      .post(`${API_URL}auth/token/`, params)
+      .post(`${API_URL}/auth/token/`, params)
       .then((response) => {
         const accessToken = response.data.access;
         axios.defaults.headers.common["Authorization"] = `Bearer ${accessToken}`;
