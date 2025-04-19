@@ -37,8 +37,8 @@ export default function Heatmap({ commits, repoCreationDate }) {
     /**
      * subtract(6, "month") or subtract(1, "year") are the options I've been tossing back and forth. Maybe I should male this calculate back to the first of the year of the repos creation date, or the first of the previous year of the repos creations date - but that seems excessive to go backwards 23 months if repo created in December.
      */
-    const startDate = creationDate.subtract(1, "year").startOf("month");
 
+    const startDate = creationDate.subtract(6, "month").startOf("month");
     const endOfThisMonth = dayjs().endOf("month");
     const monthsDiff = endOfThisMonth.diff(startDate, "month") + 1;
     const maxDailyCommits = Math.max(...Object.values(dailyCounts), 0);
@@ -121,10 +121,7 @@ export default function Heatmap({ commits, repoCreationDate }) {
             },
           },
         ],
-      ].then(() => {
-        setTimeout(scrollToRight, 0);
-        container?.addEventListener("scroll", onScroll);
-      })
+      ]
     );
 
     const container = heatmapRef.current?.parentNode;
@@ -135,11 +132,15 @@ export default function Heatmap({ commits, repoCreationDate }) {
       container.scrollLeft = container.scrollWidth;
     };
 
+    setTimeout(scrollToRight, 0);
+
     const onScroll = () => {
       if (!container) return; // probably dont need this check but here just in case
       const nearRight = container.scrollWidth - container.scrollLeft - container.clientWidth < 20;
       userScrolled = !nearRight;
     };
+
+    container?.addEventListener("scroll", onScroll);
 
     const onFocus = () => {
       scrollToRight();
