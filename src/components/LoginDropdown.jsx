@@ -1,34 +1,27 @@
 import { useState, useRef } from "react";
-import axios from "axios";
+import { useAuth } from "../AuthContext";
 
-export function LoginDropdown({ API_URL, onHover, onLeave }) {
+export function LoginDropdown({ onHover, onLeave }) {
   const [show, setShow] = useState(false);
   const [errors, setErrors] = useState([]);
   const contentRef = useRef();
 
-  const accessToken = localStorage.getItem("accessToken");
-  if (accessToken) {
-    axios.defaults.headers.common["Authorization"] = `Bearer ${accessToken}`;
-  }
+  const { login } = useAuth();
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
     setErrors([]);
 
-    const params = new FormData(event.target);
-    axios
-      .post(`${API_URL}/auth/token/`, params)
-      .then((response) => {
-        const accessToken = response.data.access;
-        axios.defaults.headers.common["Authorization"] = `Bearer ${accessToken}`;
-        localStorage.setItem("accessToken", accessToken);
-        event.target.reset();
-        window.location.href = "/";
-      })
-      .catch((error) => {
-        console.log(error.response);
-        setErrors(["Invalid username or password"]);
-      });
+    const form = new FormData(event.target);
+    const username = form.get("username");
+    const password = form.get("password");
+
+    try {
+      await login({ username, password });
+      event.target.reset();
+    } catch {
+      setErrors(["Invalid username of password"]);
+    }
   };
 
   return (

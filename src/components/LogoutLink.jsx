@@ -1,11 +1,11 @@
-import axios from "axios";
+import { useAuth } from "../AuthContext";
 
 export function LogoutLink() {
-  const handleClick = (event) => {
-    event.preventDefault();
-    delete axios.defaults.headers.common["Authorization"];
-    localStorage.removeItem("accessToken");
-    window.location.href = "/";
+  const { logout } = useAuth();
+  const handleClick = (e) => {
+    e.preventDefault();
+    logout();
+    window.location.reload();
   };
 
   return (

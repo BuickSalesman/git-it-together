@@ -1,36 +1,34 @@
 import { useState, useRef } from "react";
-
+import { useAuth } from "../AuthContext";
 import axios from "axios";
 
 export function SingupDropdown({ API_URL, onHover, onLeave }) {
   const [show, setShow] = useState(false);
   const [errors, setErrors] = useState([]);
   const contentRef = useRef();
+  const { login } = useAuth();
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
     setErrors([]);
 
-    const params = new FormData(event.target);
-    const password = params.get("password");
-    const passwordConfirmation = params.get("password_confirmation");
+    const form = new FormData(event.target);
+    const username = form.get("username");
+    const password = form.get("password");
+    const passwordConfirmation = form.get("password_confirmation");
 
     if (password !== passwordConfirmation) {
       setErrors(["Passwords do not match!"]);
       return;
     }
 
-    axios
-      .post(`${API_URL}/users/create/`, params)
-      .then((response) => {
-        console.log(response.data);
-        event.target.reset();
-        window.location.href = "/";
-      })
-      .catch((error) => {
-        console.log(error.response.data.errors);
-        setErrors(error.response.data.errors);
-      });
+    try {
+      await axios.post(`${API_URL}/users/create/`, form);
+      await login({ username, password });
+      event.target.reset();
+    } catch (err) {
+      setErrors(err.response?.data?.errors || ["Signup failed!"]);
+    }
   };
 
   return (

@@ -2,11 +2,13 @@ import { LoginDropdown } from "./LoginDropdown";
 import { SingupDropdown } from "./SignupDropdown";
 import { LogoutLink } from "./LogoutLink";
 import { useState, useRef } from "react";
+import { useAuth } from "../AuthContext";
 import "./Header.css";
 
-export function Header({ API_URL, accessToken, username, repos, commits }) {
+export function Header({ API_URL, username, repos, commits }) {
   const [bgCoords, setBgCoords] = useState({ width: 0, height: 0, top: 0, left: 0 });
   const [isOpen, setIsOpen] = useState(false);
+  const { access, logout } = useAuth();
 
   const backgroundRef = useRef();
 
@@ -34,12 +36,12 @@ export function Header({ API_URL, accessToken, username, repos, commits }) {
       <nav className="navbar">
         <div className={`dropdownBackground ${isOpen ? "open" : ""}`} style={backgroundStyle} ref={backgroundRef}></div>
 
-        <div className="nav-left">{accessToken ? <>{username}</> : <>git it together</>}</div>
+        <div className="nav-left">{access ? <>{username}</> : <>git it together</>}</div>
 
-        <div className="nav-center">{accessToken ? <>searchbar</> : <></>}</div>
+        <div className="nav-center">{access ? <>searchbar</> : <></>}</div>
 
         <div className="nav-right">
-          {accessToken ? (
+          {access ? (
             <>
               <LogoutLink />
             </>
