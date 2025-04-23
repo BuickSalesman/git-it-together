@@ -1,66 +1,37 @@
+// NewCommitButton.jsx
 import { useState } from "react";
-import axios from "axios";
 import { NewCommitModal } from "./NewCommitModal";
 import "./NewCommitButton.css";
 
-export default function NewCommitButton({ API_URL, repoName, notesEnabled, onCommitCreated }) {
+export default function NewCommitButton({ notesEnabled, onCommitCreated, loading }) {
   const [showModal, setShowModal] = useState(false);
 
-  const handleDirectCommit = async () => {
-    try {
-      const accessToken = localStorage.getItem("accessToken");
-      const response = await axios.post(
-        `${API_URL}/commits/create/`,
-        { name: repoName },
-        {
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-          },
-        }
-      );
-
-      if (onCommitCreated) {
-        onCommitCreated(response.data);
-      }
-
-      window.location.reload();
-    } catch (error) {
-      console.error(error);
-    }
+  const handleDirectCommit = () => {
+    onCommitCreated({ title: null, body: null });
   };
 
-  const handleOpenModal = () => {
-    setShowModal(true);
-  };
-
-  const handleCloseModal = () => {
+  const handleModalSubmit = ({ title, body }) => {
+    onCommitCreated({ title, body });
     setShowModal(false);
   };
 
-  // If the repo does NOT have notes enabled
+  const label = loading ? "Adding…" : "Add Commit";
+
   if (!notesEnabled) {
     return (
-      <button className="new-commit-button" onClick={handleDirectCommit}>
-        Add Commit
+      <button className="new-commit-button" onClick={handleDirectCommit} disabled={loading}>
+        {label}
       </button>
     );
   }
 
-  // Notes enabled
   return (
     <>
-      <button className="new-commit-button" onClick={handleOpenModal}>
-        Add Commit
+      <button className="new-commit-button" onClick={() => setShowModal(true)} disabled={loading}>
+        {label}
       </button>
 
-      {showModal && (
-        <NewCommitModal
-          API_URL={API_URL}
-          onClose={handleCloseModal}
-          repoName={repoName}
-          onCommitCreated={onCommitCreated}
-        />
-      )}
+      {showModal && <NewCommitModal onClose={() => setShowModal(false)} onSubmit={handleModalSubmit} />}
     </>
   );
 }

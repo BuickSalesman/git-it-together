@@ -98,8 +98,6 @@ export function RepoCard({ API_URL, accessToken, repo }) {
     <div className="repo-card">
       <div className="username-and-delete-container">
         <NewCommitButton
-          API_URL={API_URL}
-          repoName={repo.name}
           notesEnabled={repo.notes_enabled}
           onCommitCreated={addCommit.mutate}
           loading={addCommit.isLoading}
