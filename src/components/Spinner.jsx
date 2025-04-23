@@ -3,7 +3,10 @@ export default function Spinner({ text }) {
     <div className="h-screen flex items-center justify-center">
       <div className="text-center">
         <div className="spinner mb-4" /> {/* define your CSS animation */}
-        <p className="text-lg">{text}</p>
+        <p className="text-lg">
+          <p>enjoy the funny memes while your data is loading:</p>
+          {text}
+        </p>
       </div>
     </div>
   );
