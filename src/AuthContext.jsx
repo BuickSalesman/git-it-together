@@ -6,6 +6,7 @@ const AuthContext = createContext();
 export function AuthProvider({ children }) {
   const [access, setAccess] = useState(localStorage.getItem("accessToken"));
   const [refresh, setRefresh] = useState(localStorage.getItem("refreshToken"));
+  const [initialized, setInitialized] = useState(false);
 
   useEffect(() => {
     if (access) {
@@ -13,6 +14,18 @@ export function AuthProvider({ children }) {
     } else {
       delete axios.defaults.headers.common["Authorization"];
     }
+  }, [access]);
+
+  useEffect(() => {
+    const reqId = axios.interceptors.request.use((config) => {
+      if (access) {
+        config.headers = config.headers || {};
+        config.headers["Authorization"] = `Bearer ${access}`;
+      }
+      return config;
+    });
+    setInitialized(true);
+    return () => axios.interceptors.request.eject(reqId);
   }, [access]);
 
   useEffect(() => {
@@ -58,8 +71,9 @@ export function AuthProvider({ children }) {
     setRefresh(null);
   };
 
-  return <AuthContext.Provider value={{ access, refresh, login, logout }}>{children}</AuthContext.Provider>;
+  return (
+    <AuthContext.Provider value={{ access, refresh, initialized, login, logout }}>{children}</AuthContext.Provider>
+  );
 }
 
-// helper hook
 export const useAuth = () => useContext(AuthContext);
