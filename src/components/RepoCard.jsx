@@ -56,19 +56,31 @@ export function RepoCard({ API_URL, accessToken, repo }) {
         .then((r) => r.data),
     onMutate: (newCommit) => {
       qc.cancelQueries(["commits"]);
-      const previous = qc.getQueryData(["commits"]) || [];
+      qc.cancelQueries(["repos"]);
+
+      const prevCommits = qc.getQueryData(["commits"]) || [];
+      const prevRepos = qc.getQueryData(["repos"]) || [];
+
+      const tempId = `temp-${Date.now()}`;
       const temp = {
-        id: `temp-${Date.now()}`,
+        id: tempId,
         repo_name: repo.name,
         note_title: newCommit.title,
         note_body: newCommit.body,
         created_at: new Date().toISOString(),
       };
       qc.setQueryData(["commits"], (old) => [...old, temp]);
-      return { previous, tempId: temp.id };
+
+      const now = new Date().toISOString();
+      const bumped = { ...repo, updated_at: now };
+      const reordered = [bumped, ...prevRepos.filter((r) => r.id !== repo.id)];
+      qc.setQueryData(["repos"], reordered);
+
+      return { prevCommits, prevRepos, tempId };
     },
     onError: (_err, _new, ctx) => {
-      qc.setQueryData(["commits"], ctx.previous);
+      qc.setQueryData(["commits"], ctx.prevCommits);
+      qc.setQueryData(["repos"], ctx.prevRepos);
     },
     onSuccess: (real, _new, ctx) => {
       qc.setQueryData(["commits"], (old) =>
@@ -83,6 +95,10 @@ export function RepoCard({ API_URL, accessToken, repo }) {
               }
             : c
         )
+      );
+
+      qc.setQueryData(["repos"], (old) =>
+        old.map((r) => (r.id === repo.id ? { ...r, updated_at: real.created_at } : r))
       );
     },
   });
