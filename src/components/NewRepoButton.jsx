@@ -1,13 +1,11 @@
 import "./NewRepoButton.css";
 
-export function NewRepoButton({ accessToken, onClick }) {
+export function NewRepoButton({ onClick }) {
   return (
     <div className="new-repo-button">
-      {accessToken && (
-        <button className="create-repo-button" onClick={onClick}>
-          New Repo
-        </button>
-      )}
+      <button className="create-repo-button" onClick={onClick}>
+        New Repo
+      </button>
     </div>
   );
 }

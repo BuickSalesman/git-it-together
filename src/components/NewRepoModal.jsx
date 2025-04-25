@@ -1,10 +1,10 @@
 import { NewRepoForm } from "./NewRepoForm";
 
-export function NewRepoModal({ API_URL, onClose }) {
+export function NewRepoModal({ onSubmit, onClose }) {
   return (
     <div className="modal-backdrop">
       <div className="modal-content">
-        <NewRepoForm API_URL={API_URL} onClose={onClose} />
+        <NewRepoForm onSubmit={onSubmit} onClose={onClose} />
       </div>
     </div>
   );

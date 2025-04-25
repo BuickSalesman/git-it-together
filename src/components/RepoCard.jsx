@@ -33,7 +33,7 @@ function getLongestStreak(commitDates) {
   return Math.max(longestStreak, currentStreak);
 }
 
-export function RepoCard({ API_URL, accessToken, repo }) {
+export function RepoCard({ API_URL, repo }) {
   const [showModal, setShowModal] = useState(false);
   const qc = useQueryClient();
 

@@ -1,32 +1,23 @@
 import { useState } from "react";
 
-import axios from "axios";
-
-export function NewRepoForm({ API_URL, onClose }) {
+export function NewRepoForm({ onSubmit, onClose }) {
   const [errors, setErrors] = useState([]);
 
   const handleSubmit = (event) => {
     event.preventDefault();
     setErrors([]);
 
-    const params = new FormData(event.target);
+    const form = new FormData(event.target);
+    const name = form.get("name");
+    const notes_enabled = form.get("notes_enabled") === "true";
 
-    axios
-      .post(`${API_URL}/repos/create/`, params, {
-        headers: { Authorization: `Bearer ${localStorage.getItem("accessToken")}` },
-      })
-      .then((reponse) => {
-        console.log(reponse.data);
-        event.target.reset();
-        window.location.href = "/";
-      })
-      .catch((error) => {
-        if (error.response && error.response.data && error.response.data.errors) {
-          setErrors(error.response.data.errors);
-        } else {
-          setErrors(["An unknown error occurred."]);
-        }
-      });
+    if (!name) {
+      setErrors(["Name is required"]);
+      return;
+    }
+
+    onSubmit({ name, notes_enabled });
+    event.target.reset;
   };
 
   return (
