@@ -6,20 +6,15 @@ import "./NewCommitButton.css";
 export default function NewCommitButton({ notesEnabled, onCommitCreated, loading }) {
   const [showModal, setShowModal] = useState(false);
 
-  const handleDirectCommit = () => {
-    onCommitCreated({ title: null, body: null });
-  };
-
-  const handleModalSubmit = ({ title, body }) => {
-    onCommitCreated({ title, body });
-    setShowModal(false);
-  };
-
   const label = loading ? "Adding…" : "Add Commit";
 
   if (!notesEnabled) {
     return (
-      <button className="new-commit-button" onClick={handleDirectCommit} disabled={loading}>
+      <button
+        className="new-commit-button"
+        onClick={() => onCommitCreated({ title: null, body: null })}
+        disabled={loading}
+      >
         {label}
       </button>
     );
@@ -31,7 +26,15 @@ export default function NewCommitButton({ notesEnabled, onCommitCreated, loading
         {label}
       </button>
 
-      {showModal && <NewCommitModal onClose={() => setShowModal(false)} onSubmit={handleModalSubmit} />}
+      {showModal && (
+        <NewCommitModal
+          onClose={() => setShowModal(false)}
+          onSubmit={({ title, body }) => {
+            onCommitCreated({ title, body });
+            setShowModal(false);
+          }}
+        />
+      )}
     </>
   );
 }
