@@ -40,7 +40,7 @@ export default function Heatmap({ commits, repoCreationDate }) {
 
     const startDate = creationDate.subtract(6, "month").startOf("month");
     const endOfThisMonth = dayjs().endOf("month");
-    const monthsDiff = endOfThisMonth.diff(startDate, "month") + 1;
+    const monthsDiff = endOfThisMonth.diff(startDate, "month") + 2;
     const maxDailyCommits = Math.max(...Object.values(dailyCounts), 0);
     const offsetInMs = getStdTimezoneOffset() * 60 * 1000;
 
