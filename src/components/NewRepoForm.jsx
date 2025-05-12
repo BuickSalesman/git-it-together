@@ -17,7 +17,7 @@ export function NewRepoForm({ onSubmit, onClose }) {
     }
 
     onSubmit({ name, notes_enabled });
-    event.target.reset;
+    event.target.reset();
   };
 
   return (
@@ -36,8 +36,8 @@ export function NewRepoForm({ onSubmit, onClose }) {
         </div>
         <div>
           Notes Enabled:
-          <input type="hidden" name="notes_enabled" value="false" />
           <input type="checkbox" name="notes_enabled" value="true" />
+          <input type="hidden" name="notes_enabled" value="false" />
         </div>
         <button type="submit">Submit</button>
         <button className="close" onClick={onClose}>
