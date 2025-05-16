@@ -23,7 +23,7 @@ export function NewRepoContainer({ API_URL }) {
       const tempRepo = {
         id: tempRepoId,
         name,
-        notes_enabled: notes_enabled,
+        notes_enabled,
         created_at: now,
         updated_at: now,
       };
@@ -70,7 +70,6 @@ export function NewRepoContainer({ API_URL }) {
 
   const handleSubmit = ({ name, notes_enabled }) => {
     createRepoMutation.mutate({ name, notes_enabled });
-    console.log(notes_enabled);
     setShowModal(false);
   };
 
